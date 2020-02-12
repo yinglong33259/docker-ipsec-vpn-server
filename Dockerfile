@@ -42,8 +42,7 @@ RUN yum -y update \
          libnss3-dev libnspr4-dev pkg-config libpam0g-dev \
          libcap-ng-dev libcap-ng-utils libselinux1-dev \
          libcurl4-nss-dev libpcap0.8-dev flex bison gcc make \
-         perl-modules perl \
-    && yum -y autoremove
+         perl-modules perl
 
 COPY ./run.sh /opt/src/run.sh
 RUN chmod 755 /opt/src/run.sh
