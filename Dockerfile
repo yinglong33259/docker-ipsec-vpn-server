@@ -7,8 +7,7 @@ ENV L2TP_VER 1.3.12
 
 WORKDIR /opt/src
 
-RUN yum -y update \
-    && yum install -y \
+RUN yum install -y \
          wget dnsutils openssl ca-certificates kmod \
          iproute gawk grep sed net-tools iptables \
          bsdmainutils libcurl3-nss \
