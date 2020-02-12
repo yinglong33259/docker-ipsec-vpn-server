@@ -1,5 +1,5 @@
 FROM centos:7
-LABEL maintainer="Lin Song <linsongui@gmail.com>"
+LABEL maintainer="hxs"
 
 ENV REFRESHED_AT 2020-01-12
 ENV SWAN_VER 3.29
@@ -38,14 +38,12 @@ RUN yum -y update \
     && PREFIX=/usr make -s install \
     && cd /opt/src \
     && rm -rf "/opt/src/xl2tpd-${L2TP_VER}" \
-    && apt-get -yqq remove \
+    && yum -y remove \
          libnss3-dev libnspr4-dev pkg-config libpam0g-dev \
          libcap-ng-dev libcap-ng-utils libselinux1-dev \
          libcurl4-nss-dev libpcap0.8-dev flex bison gcc make \
          perl-modules perl \
-    && apt-get -yqq autoremove \
-    && apt-get -y clean \
-    && rm -rf /var/lib/apt/lists/*
+    && yum -y autoremove
 
 COPY ./run.sh /opt/src/run.sh
 RUN chmod 755 /opt/src/run.sh
