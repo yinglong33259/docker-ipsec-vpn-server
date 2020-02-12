@@ -353,7 +353,8 @@ Setup VPN clients: https://git.io/vpnclients
 EOF
 
 # Start services
+systemctl restart xl2tpd
+systemctl restart ipsec
 ipsec setup start
 ipsec verify
-service xl2tpd restart
 xl2tpd -D
