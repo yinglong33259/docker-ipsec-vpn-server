@@ -170,6 +170,33 @@ config setup
 include /etc/ipsec.d/*.conf
 EOF
 
+cat > /etc/ipsec.d/l2tp_psk.conf <<EOF
+conn L2TP-PSK-NAT
+ rightsubnet=vhost:%priv
+ also=L2TP-PSK-noNAT
+ phase2=esp
+ encapsulation=yes
+ leftcat=yes
+ 
+ 
+conn L2TP-PSK-noNAT
+ authby=secret
+ pfs=no
+ auto=add
+ keyingtries=3
+ dpddelay=30
+ dpdtimeout=120
+ dpdaction=clear
+ rekey=no
+ ikelifetime=8h
+ keylife=1h
+ type=tunnel
+ left=52.0.0.6
+ leftprotoport=17/1701
+ right=%any
+ rightprotoport=17/%any
+EOF
+
 # Specify IPsec PSK
 cat > /etc/ipsec.secrets <<EOF
 52.0.0.6 %any: PSK "huangxs12345"
