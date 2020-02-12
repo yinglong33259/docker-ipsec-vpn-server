@@ -1,4 +1,4 @@
-FROM centsos:7.4
+FROM centos:7.4
 LABEL maintainer="Lin Song <linsongui@gmail.com>"
 
 ENV REFRESHED_AT 2020-01-12
