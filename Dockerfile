@@ -7,9 +7,8 @@ ENV L2TP_VER 1.3.12
 
 WORKDIR /opt/src
 
-RUN apt-get -yqq update \
-    && DEBIAN_FRONTEND=noninteractive \
-       apt-get -yqq --no-install-recommends install \
+RUN yum -y update \
+    && yum -y install \
          wget dnsutils openssl ca-certificates kmod \
          iproute gawk grep sed net-tools iptables \
          bsdmainutils libcurl3-nss \
@@ -39,14 +38,11 @@ RUN apt-get -yqq update \
     && PREFIX=/usr make -s install \
     && cd /opt/src \
     && rm -rf "/opt/src/xl2tpd-${L2TP_VER}" \
-    && apt-get -yqq remove \
+    && yum -y remove \
          libnss3-dev libnspr4-dev pkg-config libpam0g-dev \
          libcap-ng-dev libcap-ng-utils libselinux1-dev \
          libcurl4-nss-dev libpcap0.8-dev flex bison gcc make \
-         perl-modules perl \
-    && apt-get -yqq autoremove \
-    && apt-get -y clean \
-    && rm -rf /var/lib/apt/lists/*
+         perl-modules perl
 
 COPY ./run.sh /opt/src/run.sh
 RUN chmod 755 /opt/src/run.sh
