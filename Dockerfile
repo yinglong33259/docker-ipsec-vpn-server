@@ -1,4 +1,4 @@
-FROM debian:stretch
+FROM centsos:7.4
 LABEL maintainer="Lin Song <linsongui@gmail.com>"
 
 ENV REFRESHED_AT 2020-01-12
@@ -7,9 +7,8 @@ ENV L2TP_VER 1.3.12
 
 WORKDIR /opt/src
 
-RUN apt-get -yqq update \
-    && DEBIAN_FRONTEND=noninteractive \
-       apt-get -yqq --no-install-recommends install \
+RUN yum -y update \
+    && yum install -y \
          wget dnsutils openssl ca-certificates kmod \
          iproute gawk grep sed net-tools iptables \
          bsdmainutils libcurl3-nss \
