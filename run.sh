@@ -1,21 +1,4 @@
 #!/bin/sh
-#
-# Docker script to configure and start an IPsec VPN server
-#
-# DO NOT RUN THIS SCRIPT ON YOUR PC OR MAC! THIS IS ONLY MEANT TO BE RUN
-# IN A DOCKER CONTAINER!
-#
-# This file is part of IPsec VPN Docker image, available at:
-# https://github.com/hwdsl2/docker-ipsec-vpn-server
-#
-# Copyright (C) 2016-2020 Lin Song <linsongui@gmail.com>
-# Based on the work of Thomas Sarlandie (Copyright 2012)
-#
-# This work is licensed under the Creative Commons Attribution-ShareAlike 3.0
-# Unported License: http://creativecommons.org/licenses/by-sa/3.0/
-#
-# Attribution required: please include my name in any derivative and let me
-# know how you have improved it!
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -37,10 +20,6 @@ fi
 if ip link add dummy0 type dummy 2>&1 | grep -q "not permitted"; then
 cat 1>&2 <<'EOF'
 Error: This Docker image must be run in privileged mode.
-
-For detailed instructions, please visit:
-https://github.com/hwdsl2/docker-ipsec-vpn-server
-
 EOF
   exit 1
 fi
@@ -134,11 +113,7 @@ echo 'Trying to auto discover IP of this server...'
 # of this server in your 'env' file, as variable 'VPN_PUBLIC_IP'.
 PUBLIC_IP=${VPN_PUBLIC_IP:-''}
 
-# Try to auto discover IP of this server
-[ -z "$PUBLIC_IP" ] && PUBLIC_IP=$(dig @resolver1.opendns.com -t A -4 myip.opendns.com +short)
-
 # Check IP for correct format
-check_ip "$PUBLIC_IP" || PUBLIC_IP=$(wget -t 3 -T 15 -qO- http://ipv4.icanhazip.com)
 check_ip "$PUBLIC_IP" || exiterr "Cannot detect this server's public IP. Define it in your 'env' file as 'VPN_PUBLIC_IP'."
 
 L2TP_NET=${VPN_L2TP_NET:-'192.168.42.0/24'}
