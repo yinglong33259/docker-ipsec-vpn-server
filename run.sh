@@ -160,18 +160,14 @@ esac
 
 # Create IPsec (Libreswan) config
 cat > /etc/ipsec.conf <<EOF
+version 2.0
+
 config setup
  plutodebug=none
  virtual_private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12,%v4:52.0.0.0/8
  protostack=netkey
- interfaces=%defaultroute
- uniqueids=no
+ dumpdir=/var/run/pluto/
  
-include /etc/ipsec.d/*.conf
-EOF
-
-# Create IPsec (Libreswan) config
-cat > /etc/ipsec.d/l2tp_psk.conf <<EOF
 conn L2TP-PSK-NAT
  rightsubnet=vhost:%priv
  also=L2TP-PSK-noNAT
@@ -182,6 +178,7 @@ conn L2TP-PSK-NAT
  
 conn L2TP-PSK-noNAT
  authby=secret
+ encapsulation=yes
  pfs=no
  auto=add
  keyingtries=3
@@ -193,9 +190,15 @@ conn L2TP-PSK-noNAT
  keylife=1h
  type=tunnel
  left=%defaultroute
+ leftid=$PUBLIC_IP
  leftprotoport=17/1701
  right=%any
  rightprotoport=17/%any
+ dpddelay=30
+ dpdtimeout=120
+ dpdaction=clear
+ ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
+ phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
 EOF
 
 if uname -r | grep -qi 'coreos'; then
