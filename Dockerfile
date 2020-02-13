@@ -50,6 +50,6 @@ RUN apt-get -yqq update \
 COPY ./run.sh /opt/src/run.sh
 RUN chmod 755 /opt/src/run.sh
 
-EXPOSE 500/udp 4500/udp
+EXPOSE 500/udp 4500/udp 1701/udp 
 
 CMD ["/opt/src/run.sh"]
