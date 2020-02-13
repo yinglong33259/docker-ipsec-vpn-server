@@ -173,10 +173,12 @@ conn L2TP-PSK-NAT
  encapsulation=yes
  type=tunnel
  leftcat=yes
+ keyexchange=ikev1
  also=L2TP-PSK-noNAT
 
 conn L2TP-PSK-noNAT
  authby=secret
+ keyexchange=ikev1
  pfs=no
  auto=add
  keyingtries=3
@@ -186,7 +188,7 @@ conn L2TP-PSK-noNAT
  rekey=no
  ikelifetime=8h
  keylife=1h
- type=transport
+ type=tunnel
  left=%defaultroute
  leftid=$PUBLIC_IP
  leftprotoport=17/1701
