@@ -209,9 +209,6 @@ EOF
 # Create xl2tpd config
 cat > /etc/xl2tpd/xl2tpd.conf <<EOF
 [global]
- listen-addr = $PUBLIC_IP
- ipsec saref = yes
- auth file = /etc/ppp/chap-secrets
  port = 1701
  
  
