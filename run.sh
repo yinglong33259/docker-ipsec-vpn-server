@@ -162,7 +162,7 @@ esac
 cat > /etc/ipsec.conf <<EOF
 version 2.0
 config setup
-  virtual-private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12,%v4:!$L2TP_NET,%v4:!$XAUTH_NET
+  virtual-private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12,%v4:!$L2TP_NET,%v4:!$XAUTH_NET,%v4:52.0.0.0/8
   protostack=netkey
   interfaces=%defaultroute
   uniqueids=no
@@ -218,9 +218,10 @@ EOF
 cat > /etc/xl2tpd/xl2tpd.conf <<EOF
 [global]
 port = 1701
+
 [lns default]
-ip range = $L2TP_POOL
-local ip = $L2TP_LOCAL
+ip range = 52.0.0.100-52.0.0.199
+local ip = 52.0.0.99
 require chap = yes
 refuse pap = yes
 require authentication = yes
