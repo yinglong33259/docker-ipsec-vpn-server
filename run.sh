@@ -186,7 +186,7 @@ conn L2TP-PSK-noNAT
  ikelifetime=8h
  keylife=1h
  type=transport
- left=%defaultroute
+ left=$PUBLIC_IP
  leftid=$PUBLIC_IP
  leftprotoport=17/1701
  right=%any
