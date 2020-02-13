@@ -166,12 +166,14 @@ config setup
   protostack=netkey
   interfaces=%defaultroute
   uniqueids=no
+
 conn L2TP-PSK-NAT
  rightsubnet=vhost:%priv
- also=L2TP-PSK-noNAT
  phase2=esp
  encapsulation=yes
  leftcat=yes
+ also=L2TP-PSK-noNAT
+
 conn L2TP-PSK-noNAT
  authby=secret
  pfs=no
@@ -183,12 +185,15 @@ conn L2TP-PSK-noNAT
  rekey=no
  ikelifetime=8h
  keylife=1h
- type=tunnel
+ type=transport
  left=%defaultroute
  leftid=$PUBLIC_IP
  leftprotoport=17/1701
  right=%any
- rightprotoport=17/%any  
+ rightprotoport=17/%any
+ ikev2=never
+ ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
+ phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
 EOF
 
 if uname -r | grep -qi 'coreos'; then
