@@ -171,6 +171,7 @@ conn L2TP-PSK-NAT
  rightsubnet=vhost:%priv
  phase2=esp
  encapsulation=yes
+ type=tunnel
  leftcat=yes
  also=L2TP-PSK-noNAT
 
