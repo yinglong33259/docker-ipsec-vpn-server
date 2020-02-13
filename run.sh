@@ -231,18 +231,22 @@ EOF
 
 # Set xl2tpd options
 cat > /etc/ppp/options.xl2tpd <<EOF
-+mschap-v2
 ipcp-accept-local
 ipcp-accept-remote
+ms-dns 8.8.8.8
+ms-dns 8.8.4.4
 noccp
 auth
-mtu 1280
-mru 1280
+crtscts
+idle 1800
+mtu 1410
+mru 1410
+nodefaultroute
+debug
+lock
 proxyarp
-lcp-echo-failure 4
-lcp-echo-interval 30
 connect-delay 5000
-ms-dns $DNS_SRV1
+require-mschap-v2
 EOF
 
 if [ -z "$VPN_DNS_SRV1" ] || [ -n "$VPN_DNS_SRV2" ]; then
