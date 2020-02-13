@@ -168,11 +168,24 @@ config setup
   uniqueids=no
 
 conn L2TP-PSK-NAT
- rightsubnet=vhost:%priv
  phase2=esp
  encapsulation=yes
- leftcat=yes
- also=L2TP-PSK-noNAT
+ authby=secret
+ pfs=no
+ auto=add
+ keyingtries=3
+ dpddelay=30
+ dpdtimeout=120
+ dpdaction=clear
+ rekey=no
+ ikelifetime=8h
+ keylife=1h
+ type=tunnel
+ left=$PUBLIC_IP
+ leftid=$PUBLIC_IP
+ leftprotoport=17/1701
+ right=%any
+ rightprotoport=17/%any
 
 conn L2TP-PSK-noNAT
  authby=secret
