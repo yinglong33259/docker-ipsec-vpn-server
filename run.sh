@@ -164,7 +164,8 @@ config setup
  plutodebug=none
  virtual_private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12,%v4:52.0.0.0/8
  protostack=netkey
- dumpdir=/var/run/pluto/
+ interfaces=%defaultroute
+ uniqueids=no
  
 include /etc/ipsec.d/*.conf
 EOF
@@ -191,7 +192,7 @@ conn L2TP-PSK-noNAT
  ikelifetime=8h
  keylife=1h
  type=tunnel
- left=$PUBLIC_IP
+ left=%defaultroute
  leftprotoport=17/1701
  right=%any
  rightprotoport=17/%any
