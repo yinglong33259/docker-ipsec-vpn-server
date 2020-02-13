@@ -160,6 +160,17 @@ esac
 
 # Create IPsec (Libreswan) config
 cat > /etc/ipsec.conf <<EOF
+config setup
+ plutodebug=none
+ virtual_private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12,%v4:52.0.0.0/8
+ protostack=netkey
+ dumpdir=/var/run/pluto/
+ 
+include /etc/ipsec.d/*.conf
+EOF
+
+# Create IPsec (Libreswan) config
+cat > /etc/ipsec.conf <<EOF
 conn L2TP-PSK-NAT
  rightsubnet=vhost:%priv
  also=L2TP-PSK-noNAT
