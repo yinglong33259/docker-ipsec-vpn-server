@@ -166,43 +166,29 @@ config setup
   protostack=netkey
   interfaces=%defaultroute
   uniqueids=no
-conn shared
-  left=%defaultroute
-  leftid=$PUBLIC_IP
-  right=%any
-  encapsulation=yes
-  authby=secret
-  pfs=no
-  rekey=no
-  keyingtries=5
-  dpddelay=30
-  dpdtimeout=120
-  dpdaction=clear
-  ikev2=never
-  ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
-  phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
-  sha2-truncbug=$SHA2_TRUNCBUG
-conn l2tp-psk
-  auto=add
-  leftprotoport=17/1701
-  rightprotoport=17/%any
-  type=transport
-  phase2=esp
-  also=shared
-conn xauth-psk
-  auto=add
-  leftsubnet=0.0.0.0/0
-  rightaddresspool=$XAUTH_POOL
-  modecfgdns=$DNS_SRVS
-  leftxauthserver=yes
-  rightxauthclient=yes
-  leftmodecfgserver=yes
-  rightmodecfgclient=yes
-  modecfgpull=yes
-  xauthby=file
-  ike-frag=yes
-  cisco-unity=yes
-  also=shared
+conn L2TP-PSK-NAT
+ rightsubnet=vhost:%priv
+ also=L2TP-PSK-noNAT
+ phase2=esp
+ encapsulation=yes
+ leftcat=yes
+conn L2TP-PSK-noNAT
+ authby=secret
+ pfs=no
+ auto=add
+ keyingtries=3
+ dpddelay=30
+ dpdtimeout=120
+ dpdaction=clear
+ rekey=no
+ ikelifetime=8h
+ keylife=1h
+ type=tunnel
+ left=%defaultroute
+ leftid=$PUBLIC_IP
+ leftprotoport=17/1701
+ right=%any
+ rightprotoport=17/%any  
 EOF
 
 if uname -r | grep -qi 'coreos'; then
@@ -258,7 +244,7 @@ fi
 
 # Create VPN credentials
 cat > /etc/ppp/chap-secrets <<EOF
-"$VPN_USER" l2tpd "$VPN_PASSWORD" *
+"$VPN_USER" * "$VPN_PASSWORD" *
 EOF
 
 VPN_PASSWORD_ENC=$(openssl passwd -1 "$VPN_PASSWORD")
