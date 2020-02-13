@@ -167,46 +167,36 @@ config setup
   interfaces=%defaultroute
   uniqueids=no
 
+conn shared
+  left=%defaultroute
+  leftid=$PUBLIC_IP
+  right=%any
+  encapsulation=yes
+  authby=secret
+  pfs=no
+  rekey=no
+  keyingtries=5
+  dpddelay=30
+  dpdtimeout=120
+  dpdaction=clear
+  ikev2=never
+  ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
+  phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
+
 conn L2TP-PSK-NAT
- phase2=esp
- encapsulation=yes
- authby=secret
- pfs=no
- auto=add
- keyingtries=3
- dpddelay=30
- dpdtimeout=120
- dpdaction=clear
- rekey=no
- ikelifetime=8h
- keylife=1h
- type=tunnel
- left=$PUBLIC_IP
- leftid=$PUBLIC_IP
- leftprotoport=17/1701
- right=%any
- rightprotoport=17/%any
+  auto=add
+  leftprotoport=17/1701
+  rightprotoport=17/%any
+  type=tunnel
+  phase2=esp
+  also=shared
 
 conn L2TP-PSK-noNAT
- authby=secret
- pfs=no
- auto=add
- keyingtries=3
- dpddelay=30
- dpdtimeout=120
- dpdaction=clear
- rekey=no
- ikelifetime=8h
- keylife=1h
- type=transport
- left=$PUBLIC_IP
- leftid=$PUBLIC_IP
- leftprotoport=17/1701
- right=%any
- rightprotoport=17/%any
- ikev2=never
- ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
- phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
+  auto=add
+  leftprotoport=17/1701
+  rightprotoport=17/%any
+  type=transport
+  also=shared
 EOF
 
 # Specify IPsec PSK
