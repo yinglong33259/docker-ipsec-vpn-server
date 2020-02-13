@@ -199,13 +199,15 @@ EOF
 
 # Specify IPsec PSK
 cat > /etc/ipsec.secrets <<EOF
-%any  %any  : PSK "$VPN_IPSEC_PSK"
+52.0.0.6  %any  : PSK "$VPN_IPSEC_PSK"
 EOF
 
 # Create xl2tpd config
 cat > /etc/xl2tpd/xl2tpd.conf <<EOF
 [global]
 port = 1701
+ipsec saref = yes
+auth file = /etc/ppp/chap-secrets
 
 [lns default]
 ip range = 52.0.0.100-52.0.0.199
