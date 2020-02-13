@@ -161,44 +161,48 @@ esac
 # Create IPsec (Libreswan) config
 cat > /etc/ipsec.conf <<EOF
 version 2.0
-
 config setup
- plutodebug=none
- virtual_private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12,%v4:52.0.0.0/8
- protostack=netkey
- dumpdir=/var/run/pluto/
- 
-conn L2TP-PSK-NAT
- rightsubnet=vhost:%priv
- also=L2TP-PSK-noNAT
- phase2=esp
- encapsulation=yes
- leftcat=yes
- 
- 
-conn L2TP-PSK-noNAT
- authby=secret
- encapsulation=yes
- pfs=no
- auto=add
- keyingtries=3
- dpddelay=30
- dpdtimeout=120
- dpdaction=clear
- rekey=no
- ikelifetime=8h
- keylife=1h
- type=tunnel
- left=%defaultroute
- leftid=$PUBLIC_IP
- leftprotoport=17/1701
- right=%any
- rightprotoport=17/%any
- dpddelay=30
- dpdtimeout=120
- dpdaction=clear
- ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
- phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
+  virtual-private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12,%v4:!$L2TP_NET,%v4:!$XAUTH_NET
+  protostack=netkey
+  interfaces=%defaultroute
+  uniqueids=no
+conn shared
+  left=%defaultroute
+  leftid=$PUBLIC_IP
+  right=%any
+  encapsulation=yes
+  authby=secret
+  pfs=no
+  rekey=no
+  keyingtries=5
+  dpddelay=30
+  dpdtimeout=120
+  dpdaction=clear
+  ikev2=never
+  ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
+  phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
+  sha2-truncbug=$SHA2_TRUNCBUG
+conn l2tp-psk
+  auto=add
+  leftprotoport=17/1701
+  rightprotoport=17/%any
+  type=transport
+  phase2=esp
+  also=shared
+conn xauth-psk
+  auto=add
+  leftsubnet=0.0.0.0/0
+  rightaddresspool=$XAUTH_POOL
+  modecfgdns=$DNS_SRVS
+  leftxauthserver=yes
+  rightxauthclient=yes
+  leftmodecfgserver=yes
+  rightmodecfgclient=yes
+  modecfgpull=yes
+  xauthby=file
+  ike-frag=yes
+  cisco-unity=yes
+  also=shared
 EOF
 
 if uname -r | grep -qi 'coreos'; then
@@ -213,39 +217,32 @@ EOF
 # Create xl2tpd config
 cat > /etc/xl2tpd/xl2tpd.conf <<EOF
 [global]
- port = 1701
- 
- 
+port = 1701
 [lns default]
- ip range = 52.0.0.50-52.0.0.80
- local ip = 52.0.0.79
- require chap = yes
- refuse pap = yes
- require authentication = yes
- name = L2TP_IPSec
- ppp debug = yes
- pppoptfile = /etc/ppp/options.xl2tpd
- length bit = yes
+ip range = $L2TP_POOL
+local ip = $L2TP_LOCAL
+require chap = yes
+refuse pap = yes
+require authentication = yes
+name = l2tpd
+pppoptfile = /etc/ppp/options.xl2tpd
+length bit = yes
 EOF
 
 # Set xl2tpd options
 cat > /etc/ppp/options.xl2tpd <<EOF
++mschap-v2
 ipcp-accept-local
 ipcp-accept-remote
-ms-dns 8.8.8.8
-ms-dns 8.8.4.4
 noccp
 auth
-crtscts
-idle 1800
-mtu 1410
-mru 1410
-nodefaultroute
-debug
-lock
+mtu 1280
+mru 1280
 proxyarp
+lcp-echo-failure 4
+lcp-echo-interval 30
 connect-delay 5000
-require-mschap-v2
+ms-dns $DNS_SRV1
 EOF
 
 if [ -z "$VPN_DNS_SRV1" ] || [ -n "$VPN_DNS_SRV2" ]; then
