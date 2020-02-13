@@ -170,7 +170,7 @@ include /etc/ipsec.d/*.conf
 EOF
 
 # Create IPsec (Libreswan) config
-cat > /etc/ipsec.conf <<EOF
+cat > /etc/ipsec.d/l2tp_psk.conf <<EOF
 conn L2TP-PSK-NAT
  rightsubnet=vhost:%priv
  also=L2TP-PSK-noNAT
