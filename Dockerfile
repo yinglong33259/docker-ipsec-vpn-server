@@ -17,8 +17,7 @@ RUN apt-get -yqq update && apt-get -y install rsyslog \
          libcap-ng-dev libcap-ng-utils libselinux1-dev \
          libcurl4-nss-dev libpcap0.8-dev \
          flex bison gcc make \
-    && wget -t 3 -T 30 -nv -O libreswan.tar.gz "https://github.com/libreswan/libreswan/archive/v${SWAN_VER}.tar.gz" \
-    || wget -t 3 -T 30 -nv -O libreswan.tar.gz "https://download.libreswan.org/libreswan-${SWAN_VER}.tar.gz" \
+    && wget -t 3 -T 30 -O libreswan.tar.gz "https://github.com/libreswan/libreswan/archive/v${SWAN_VER}.tar.gz" \
     && tar xzf libreswan.tar.gz \
     && rm -f libreswan.tar.gz \
     && cd "libreswan-${SWAN_VER}" \
@@ -30,7 +29,6 @@ RUN apt-get -yqq update && apt-get -y install rsyslog \
     && cd /opt/src \
     && rm -rf "/opt/src/libreswan-${SWAN_VER}" \
     && wget -t 3 -T 30 -nv -O xl2tpd.tar.gz "https://github.com/xelerance/xl2tpd/archive/v${L2TP_VER}.tar.gz" \
-    || wget -t 3 -T 30 -nv -O xl2tpd.tar.gz "https://debian.osuosl.org/debian/pool/main/x/xl2tpd/xl2tpd_${L2TP_VER}.orig.tar.gz" \
     && tar xzf xl2tpd.tar.gz \
     && rm -f xl2tpd.tar.gz \
     && cd "xl2tpd-${L2TP_VER}" \
