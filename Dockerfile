@@ -28,7 +28,7 @@ RUN apt-get -yqq update && apt-get -y install rsyslog \
     && make -s install-base \
     && cd /opt/src \
     && rm -rf "/opt/src/libreswan-${SWAN_VER}" \
-    && wget -t 3 -T 30 -nv -O xl2tpd.tar.gz "https://github.com/xelerance/xl2tpd/archive/v${L2TP_VER}.tar.gz" \
+    && wget -t 3 -T 30 -O xl2tpd.tar.gz "https://github.com/xelerance/xl2tpd/archive/v${L2TP_VER}.tar.gz" \
     && tar xzf xl2tpd.tar.gz \
     && rm -f xl2tpd.tar.gz \
     && cd "xl2tpd-${L2TP_VER}" \
