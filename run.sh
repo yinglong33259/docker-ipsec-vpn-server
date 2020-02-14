@@ -160,7 +160,6 @@ esac
 
 # Create IPsec (Libreswan) config
 cat > /etc/ipsec.conf <<EOF
-version 2.0
 config setup
   virtual-private=%v4:52.0.0.0/8
   protostack=netkey
@@ -189,6 +188,7 @@ conn L2TP-PSK-NAT
   type=tunnel
   phase2=esp
   also=shared
+  leftcat=yes
 
 conn L2TP-PSK-noNAT
   auto=add
