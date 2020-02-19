@@ -141,13 +141,34 @@ case $VPN_SHA2_TRUNCBUG in
     ;;
 esac
 
+IPSEC_CONNS=${VPN_IPSEC_CONNS:-'()'}
+for conn_name in ${IPSEC_CONNS[@]}
+do
+echo "get an ipsec conn name:"+$conn_name
+conn_conntest_name=`eval echo '$'"conn_${conn_name}_name"`
+conn_conntest_right=`eval echo '$'"conn_${conn_name}_name"`
+conn_conntest_also=`eval echo '$'"conn_${conn_name}_name"`
+conn_conntest_auto=`eval echo '$'"conn_${conn_name}_name"`
+conn_conntest_leftprotoport=`eval echo '$'"conn_${conn_name}_name"`
+conn_conntest_rightprotoport=`eval echo '$'"conn_${conn_name}_name"`
+conn_conntest_type=`eval echo '$'"conn_${conn_name}_name"`
+conn_conntest_phase2=`eval echo '$'"conn_${conn_name}_name"`
+conn_conntest_also=`eval echo '$'"conn_${conn_name}_name"`
+done
+
+
 cat <<EOF
 ================================================
 IPsec conn test param!
-ConnName: $PUBLIC_IP
-IPsec PSK: $VPN_IPSEC_PSK
-Username: $VPN_USER
-Password: $VPN_PASSWORD
+conn_conntest_name: $conn_conntest_name
+conn_conntest_right: $conn_conntest_right
+conn_conntest_also: $conn_conntest_also
+conn_conntest_auto: $conn_conntest_auto
+conn_conntest_leftprotoport: $conn_conntest_leftprotoport
+conn_conntest_rightprotoport: $conn_conntest_rightprotoport
+conn_conntest_type: $conn_conntest_type
+conn_conntest_phase2: $conn_conntest_phase2
+conn_conntest_also: $conn_conntest_also
 EOF
 
 # Create IPsec (Libreswan) config

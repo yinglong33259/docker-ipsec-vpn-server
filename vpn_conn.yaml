@@ -1,14 +1,15 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: conn-test
+  name: conntest
   namespace: vpntest
 data:
-  right: 100.73.66.0/24
-  also: shared
-  auto: add
-  leftprotoport : 17/1701
-  rightprotoport : 17/%any
-  type : tunnel
-  phase2 : esp
-  also : shared
+  conn_conntest_name: conntest
+  conn_conntest_right: 100.73.66.0/24
+  conn_conntest_also: shared
+  conn_conntest_auto: add
+  conn_conntest_leftprotoport : 17/1701
+  conn_conntest_rightprotoport : 17/%any
+  conn_conntest_type : tunnel
+  conn_conntest_phase2 : esp
+  conn_conntest_also : shared

@@ -33,7 +33,10 @@ spec:
             secretRef:
                 - name: vpn-secret
             configMapKeyRef:
-                - name: conn-test
+                - name: conntest
+        env:
+          - name: VPN_IPSEC_CONNS
+            value: (conntest)
       imagePullSecrets:
         - name: docker-registry-secret
       nodeSelector:
