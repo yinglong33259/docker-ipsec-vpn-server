@@ -149,18 +149,18 @@ IPsec conn test param!
 conn_conntest_name: $IPSEC_CONNS
 EOF
 
-for conn_name in ${IPSEC_CONNS[@]}
+for element in ${IPSEC_CONNS[@]}
 do
-echo "get an ipsec conn name:${conn_name}"
-conn_conntest_name=`eval echo '$'"conn_${conn_name}_name"`
-conn_conntest_right=`eval echo '$'"conn_${conn_name}_name"`
-conn_conntest_also=`eval echo '$'"conn_${conn_name}_name"`
-conn_conntest_auto=`eval echo '$'"conn_${conn_name}_name"`
-conn_conntest_leftprotoport=`eval echo '$'"conn_${conn_name}_name"`
-conn_conntest_rightprotoport=`eval echo '$'"conn_${conn_name}_name"`
-conn_conntest_type=`eval echo '$'"conn_${conn_name}_name"`
-conn_conntest_phase2=`eval echo '$'"conn_${conn_name}_name"`
-conn_conntest_also=`eval echo '$'"conn_${conn_name}_name"`
+echo "get an ipsec conn name:${element}"
+conn_conntest_name=`eval echo '$'"conn_${element}_name"`
+conn_conntest_right=`eval echo '$'"conn_${element}_name"`
+conn_conntest_also=`eval echo '$'"conn_${element}_name"`
+conn_conntest_auto=`eval echo '$'"conn_${element}_name"`
+conn_conntest_leftprotoport=`eval echo '$'"conn_${element}_name"`
+conn_conntest_rightprotoport=`eval echo '$'"conn_${element}_name"`
+conn_conntest_type=`eval echo '$'"conn_${element}_name"`
+conn_conntest_phase2=`eval echo '$'"conn_${element}_name"`
+conn_conntest_also=`eval echo '$'"conn_${element}_name"`
 done
 
 
