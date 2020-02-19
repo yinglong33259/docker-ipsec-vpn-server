@@ -107,6 +107,7 @@ PUBLIC_IP=${VPN_PUBLIC_IP:-''}
 check_ip "$PUBLIC_IP" || PUBLIC_IP=$(wget -t 3 -T 15 -qO- http://ipv4.icanhazip.com)
 check_ip "$PUBLIC_IP" || exiterr "Cannot detect this server's public IP. Define it in your 'env' file as 'VPN_PUBLIC_IP'."
 
+VIRTUAL_PRIVATE=${IPSEC_VIRTUAL_PRIVATE:-'%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12'}
 L2TP_NET=${XL2TPD_IP_NET:-'192.168.1.0/24'}
 L2TP_LOCAL=${XL2TPD_LOCAL_IP:-'192.168.1.1'}
 L2TP_POOL=${XL2TPD_IP_RANGE:-'192.168.1.10-192.168.1.250'}
@@ -123,7 +124,7 @@ esac
 # Create IPsec (Libreswan) config
 cat > /etc/ipsec.conf <<EOF
 config setup
-  virtual-private=%v4:52.0.0.0/8,%v4:!$L2TP_NET
+  virtual-private=$VIRTUAL_PRIVATE%,v4:!$L2TP_NET
   protostack=netkey
   interfaces=%defaultroute
   uniqueids=no
