@@ -164,25 +164,9 @@ conn shared
   ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
   phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
 
-# conn L2TP-PSK-NAT
-#   right=%any
-#   auto=add
-#   leftprotoport=17/1701
-#   rightprotoport=17/%any
-#   type=tunnel
-#   phase2=esp
-#   also=shared
-
-conn L2TP-PSK-noNAT
-  right=%any
-  auto=add
-  leftprotoport=17/1701
-  rightprotoport=17/%any
-  type=transport
-  also=shared
 EOF
 
-#变量已有conn配置，添加到配置文件里面
+#添加所有conn配置，添加到配置文件里面
 IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
 IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
 
@@ -198,15 +182,42 @@ conn_conntest_rightprotoport=`eval echo '$'"conn_${element}_rightprotoport"`
 conn_conntest_type=`eval echo '$'"conn_${element}_type"`
 conn_conntest_phase2=`eval echo '$'"conn_${element}_phase2"`
 conn_conntest_also=`eval echo '$'"conn_${element}_also"`
+conn_conntest_leftsubnet=`eval echo '$'"conn_${element}_leftsubnet"`
+conn_conntest_rightsubnet=`eval echo '$'"conn_${element}_rightsubnet"`
+
 echo "conn $conn_conntest_name" >> /etc/ipsec.conf
-echo "    $conn_conntest_right" >> /etc/ipsec.conf
-echo "    $conn_conntest_also" >> /etc/ipsec.conf
-echo "    $conn_conntest_auto" >> /etc/ipsec.conf
-echo "    $conn_conntest_leftprotoport" >> /etc/ipsec.conf
-echo "    $conn_conntest_rightprotoport" >> /etc/ipsec.conf
-echo "    $conn_conntest_type" >> /etc/ipsec.conf
-echo "    $conn_conntest_phase2" >> /etc/ipsec.conf
-echo "    $conn_conntest_also" >> /etc/ipsec.conf
+if [ ! -z "$conn_conntest_right" ]; then
+  echo "  right=$conn_conntest_right" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_conntest_also" ]; then
+  echo "  also=$conn_conntest_also" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_conntest_auto" ]; then
+  echo "  auto=$conn_conntest_auto" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_conntest_leftprotoport" ]; then
+  echo "  leftprotoport=$conn_conntest_leftprotoport" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_conntest_rightprotoport" ]; then
+  echo "  rightprotoport=$conn_conntest_rightprotoport" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_conntest_type" ]; then
+  echo "  type=$conn_conntest_type" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_conntest_phase2" ]; then
+  echo "  phase2=$conn_conntest_phase2" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_conntest_also" ]; then
+  echo "  also=$conn_conntest_also" >> /etc/ipsec.conf
+else
+  echo "  also=shared" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_conntest_leftsubnet" ]; then
+  echo "  leftsubnet=$conn_conntest_leftsubnet" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_conntest_rightsubnet" ]; then
+  echo "  rightsubnet=$conn_conntest_rightsubnet" >> /etc/ipsec.conf
+fi
 done
 
 # Specify IPsec PSK
