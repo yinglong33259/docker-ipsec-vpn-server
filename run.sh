@@ -152,6 +152,11 @@ EOF
 for element in ${IPSEC_CONNS[*]}
 do
 echo "get an ipsec conn name:${element}"
+done
+
+for element in ${IPSEC_CONNS[*]}
+do
+echo "get an ipsec conn name:${element}"
 conn_conntest_name=`eval echo '$'"conn_${element}_name"`
 conn_conntest_right=`eval echo '$'"conn_${element}_name"`
 conn_conntest_also=`eval echo '$'"conn_${element}_name"`
