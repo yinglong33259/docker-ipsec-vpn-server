@@ -36,7 +36,7 @@ spec:
                 name: conntest
         env:
           - name: VPN_IPSEC_CONNS
-            value: conntest,ccccc
+            value: conntest
       imagePullSecrets:
         - name: docker-registry-secret
       nodeSelector:
