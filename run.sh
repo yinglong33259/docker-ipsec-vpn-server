@@ -141,44 +141,6 @@ case $VPN_SHA2_TRUNCBUG in
     ;;
 esac
 
-
-IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
-IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
-cat <<EOF
-================================================
-IPsec conn test param!
-conn_str: $IPSEC_CONNS_STR
-conn_array: $IPSEC_CONN_ARRAY
-EOF
-
-for element in ${IPSEC_CONN_ARRAY[*]}
-do
-echo "get an ipsec conn name:${element}"
-conn_conntest_name=`eval echo '$'"conn_${element}_name"`
-conn_conntest_right=`eval echo '$'"conn_${element}_right"`
-conn_conntest_also=`eval echo '$'"conn_${element}_also"`
-conn_conntest_auto=`eval echo '$'"conn_${element}_auto"`
-conn_conntest_leftprotoport=`eval echo '$'"conn_${element}_leftprotoport"`
-conn_conntest_rightprotoport=`eval echo '$'"conn_${element}_rightprotoport"`
-conn_conntest_type=`eval echo '$'"conn_${element}_type"`
-conn_conntest_phase2=`eval echo '$'"conn_${element}_phase2"`
-conn_conntest_also=`eval echo '$'"conn_${element}_also"`
-done
-
-cat <<EOF
-================================================
-IPsec conn test param!
-conn_conntest_name: $conn_conntest_name
-conn_conntest_right: $conn_conntest_right
-conn_conntest_also: $conn_conntest_also
-conn_conntest_auto: $conn_conntest_auto
-conn_conntest_leftprotoport: $conn_conntest_leftprotoport
-conn_conntest_rightprotoport: $conn_conntest_rightprotoport
-conn_conntest_type: $conn_conntest_type
-conn_conntest_phase2: $conn_conntest_phase2
-conn_conntest_also: $conn_conntest_also
-EOF
-
 # Create IPsec (Libreswan) config
 cat > /etc/ipsec.conf <<EOF
 config setup
@@ -202,14 +164,14 @@ conn shared
   ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
   phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
 
-conn L2TP-PSK-NAT
-  right=%any
-  auto=add
-  leftprotoport=17/1701
-  rightprotoport=17/%any
-  type=tunnel
-  phase2=esp
-  also=shared
+# conn L2TP-PSK-NAT
+#   right=%any
+#   auto=add
+#   leftprotoport=17/1701
+#   rightprotoport=17/%any
+#   type=tunnel
+#   phase2=esp
+#   also=shared
 
 conn L2TP-PSK-noNAT
   right=%any
@@ -219,6 +181,33 @@ conn L2TP-PSK-noNAT
   type=transport
   also=shared
 EOF
+
+#变量已有conn配置，添加到配置文件里面
+IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
+IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
+
+for element in ${IPSEC_CONN_ARRAY[*]}
+do
+echo "get an ipsec conn name:${element}"
+conn_conntest_name=`eval echo '$'"conn_${element}_name"`
+conn_conntest_right=`eval echo '$'"conn_${element}_right"`
+conn_conntest_also=`eval echo '$'"conn_${element}_also"`
+conn_conntest_auto=`eval echo '$'"conn_${element}_auto"`
+conn_conntest_leftprotoport=`eval echo '$'"conn_${element}_leftprotoport"`
+conn_conntest_rightprotoport=`eval echo '$'"conn_${element}_rightprotoport"`
+conn_conntest_type=`eval echo '$'"conn_${element}_type"`
+conn_conntest_phase2=`eval echo '$'"conn_${element}_phase2"`
+conn_conntest_also=`eval echo '$'"conn_${element}_also"`
+echo "conn $conn_conntest_name" >> /etc/ipsec.conf
+echo "    $conn_conntest_right" >> /etc/ipsec.conf
+echo "    $conn_conntest_also" >> /etc/ipsec.conf
+echo "    $conn_conntest_auto" >> /etc/ipsec.conf
+echo "    $conn_conntest_leftprotoport" >> /etc/ipsec.conf
+echo "    $conn_conntest_rightprotoport" >> /etc/ipsec.conf
+echo "    $conn_conntest_type" >> /etc/ipsec.conf
+echo "    $conn_conntest_phase2" >> /etc/ipsec.conf
+echo "    $conn_conntest_also" >> /etc/ipsec.conf
+done
 
 # Specify IPsec PSK
 cat > /etc/ipsec.secrets <<EOF
