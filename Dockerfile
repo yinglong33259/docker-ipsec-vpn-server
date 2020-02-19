@@ -7,7 +7,7 @@ ENV L2TP_VER 1.3.14
 
 WORKDIR /opt/src
 
-RUN apt-get -yqq update && apt-get -y install rsyslog \
+RUN apt-get -yqq update && apt-get -y install rsyslog vim\
     && apt-get -yqq --no-install-recommends install \
          wget dnsutils openssl ca-certificates kmod \
          iproute gawk grep sed net-tools iptables \
