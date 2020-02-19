@@ -13,7 +13,7 @@ spec:
       hostNetwork: true
       containers:
       - name: docker-vpn
-        image: registry.nervhub.dev.dingcloud.com/vpntest/vpn:1
+        image: registry.nervhub.dev.dingcloud.com/vpntest/vpn
         ports:
             - name: p1
               containerPort: 500
