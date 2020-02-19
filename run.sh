@@ -93,21 +93,6 @@ if printf '%s' "$VPN_USER $VPN_ADDL_USERS" | tr ' ' '\n' | sort | uniq -c | grep
   exiterr "VPN usernames must not contain duplicates."
 fi
 
-# Check DNS servers and try to resolve hostnames to IPs
-if [ -n "$VPN_DNS_SRV1" ]; then
-  VPN_DNS_SRV1=$(nospaces "$VPN_DNS_SRV1")
-  VPN_DNS_SRV1=$(noquotes "$VPN_DNS_SRV1")
-  check_ip "$VPN_DNS_SRV1" || VPN_DNS_SRV1=$(dig -t A -4 +short "$VPN_DNS_SRV1")
-  check_ip "$VPN_DNS_SRV1" || exiterr "Invalid DNS server 'VPN_DNS_SRV1'. Please check your 'env' file."
-fi
-
-if [ -n "$VPN_DNS_SRV2" ]; then
-  VPN_DNS_SRV2=$(nospaces "$VPN_DNS_SRV2")
-  VPN_DNS_SRV2=$(noquotes "$VPN_DNS_SRV2")
-  check_ip "$VPN_DNS_SRV2" || VPN_DNS_SRV2=$(dig -t A -4 +short "$VPN_DNS_SRV2")
-  check_ip "$VPN_DNS_SRV2" || exiterr "Invalid DNS server 'VPN_DNS_SRV2'. Please check your 'env' file."
-fi
-
 echo
 echo 'Trying to auto discover IP of this server...'
 
@@ -122,15 +107,9 @@ PUBLIC_IP=${VPN_PUBLIC_IP:-''}
 check_ip "$PUBLIC_IP" || PUBLIC_IP=$(wget -t 3 -T 15 -qO- http://ipv4.icanhazip.com)
 check_ip "$PUBLIC_IP" || exiterr "Cannot detect this server's public IP. Define it in your 'env' file as 'VPN_PUBLIC_IP'."
 
-L2TP_NET=${VPN_L2TP_NET:-'192.168.42.0/24'}
-L2TP_LOCAL=${VPN_L2TP_LOCAL:-'192.168.42.1'}
-L2TP_POOL=${VPN_L2TP_POOL:-'192.168.42.10-192.168.42.250'}
-XAUTH_NET=${VPN_XAUTH_NET:-'192.168.43.0/24'}
-XAUTH_POOL=${VPN_XAUTH_POOL:-'192.168.43.10-192.168.43.250'}
-DNS_SRV1=${VPN_DNS_SRV1:-'8.8.8.8'}
-DNS_SRV2=${VPN_DNS_SRV2:-'8.8.4.4'}
-DNS_SRVS="\"$DNS_SRV1 $DNS_SRV2\""
-[ -n "$VPN_DNS_SRV1" ] && [ -z "$VPN_DNS_SRV2" ] && DNS_SRVS="$DNS_SRV1"
+L2TP_NET=${XL2TPD_IP_NET:-'192.168.1.0/24'}
+L2TP_LOCAL=${XL2TPD_LOCAL_IP:-'192.168.1.1'}
+L2TP_POOL=${XL2TPD_IP_RANGE:-'192.168.1.10-192.168.1.250'}
 
 case $VPN_SHA2_TRUNCBUG in
   [yY][eE][sS])
@@ -144,7 +123,7 @@ esac
 # Create IPsec (Libreswan) config
 cat > /etc/ipsec.conf <<EOF
 config setup
-  virtual-private=%v4:52.0.0.0/8
+  virtual-private=%v4:52.0.0.0/8,%v4:!$L2TP_NET
   protostack=netkey
   interfaces=%defaultroute
   uniqueids=no
@@ -233,8 +212,8 @@ ipsec saref = yes
 auth file = /etc/ppp/chap-secrets
 
 [lns default]
-ip range = 52.0.0.100-52.0.0.199
-local ip = 52.0.0.99
+ip range = $L2TP_POOL
+local ip = $L2TP_LOCAL
 require chap = yes
 refuse pap = yes
 require authentication = yes
@@ -262,12 +241,6 @@ proxyarp
 connect-delay 5000
 require-mschap-v2
 EOF
-
-if [ -z "$VPN_DNS_SRV1" ] || [ -n "$VPN_DNS_SRV2" ]; then
-cat >> /etc/ppp/options.xl2tpd <<EOF
-ms-dns $DNS_SRV2
-EOF
-fi
 
 # Create VPN credentials
 cat > /etc/ppp/chap-secrets <<EOF
@@ -333,13 +306,13 @@ iptables -I FORWARD 1 -m conntrack --ctstate INVALID -j DROP
 iptables -I FORWARD 2 -i eth+ -o ppp+ -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -I FORWARD 3 -i ppp+ -o eth+ -j ACCEPT
 iptables -I FORWARD 4 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j ACCEPT
-iptables -I FORWARD 5 -i eth+ -d "$XAUTH_NET" -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-iptables -I FORWARD 6 -s "$XAUTH_NET" -o eth+ -j ACCEPT
+# iptables -I FORWARD 5 -i eth+ -d "$XAUTH_NET" -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+# iptables -I FORWARD 6 -s "$XAUTH_NET" -o eth+ -j ACCEPT
 # Uncomment if you wish to disallow traffic between VPN clients themselves
-# iptables -I FORWARD 2 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j DROP
+iptables -I FORWARD 2 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j DROP
 # iptables -I FORWARD 3 -s "$XAUTH_NET" -d "$XAUTH_NET" -j DROP
 iptables -A FORWARD -j DROP
-iptables -t nat -I POSTROUTING -s "$XAUTH_NET" -o eth+ -m policy --dir out --pol none -j MASQUERADE
+#iptables -t nat -I POSTROUTING -s "$XAUTH_NET" -o eth+ -m policy --dir out --pol none -j MASQUERADE
 iptables -t nat -I POSTROUTING -s "$L2TP_NET" -o eth+ -j MASQUERADE
 
 # Update file attributes
