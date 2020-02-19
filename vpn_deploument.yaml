@@ -28,7 +28,7 @@ spec:
               containerPort: 1701
               hostPort: 1701
         securityContext:
-          privileged: true
+            privileged: true
         - envFrom:
             secretRef:
                 - name: vpn-secret
