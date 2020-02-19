@@ -28,12 +28,12 @@ spec:
               containerPort: 1701
               hostPort: 1701
         securityContext:
-          privileged: true
-        - envFrom:
-            secretRef:
-                - name: vpn-secret
-            configMapKeyRef:
-                - name: conntest
+            privileged: true
+        envFrom:
+            - secretRef:
+                name: vpn-secret
+            - configMapKeyRef:
+                name: conn-test
         env:
           - name: VPN_IPSEC_CONNS
             value: (conntest)
