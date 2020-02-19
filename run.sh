@@ -149,7 +149,7 @@ IPsec conn test param!
 conn_conntest_name: $IPSEC_CONNS
 EOF
 
-for element in ${IPSEC_CONNS[@]}
+for element in ${IPSEC_CONNS[*]}
 do
 echo "get an ipsec conn name:${element}"
 conn_conntest_name=`eval echo '$'"conn_${element}_name"`
