@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conn-test
+  namespace: vpntest
+data:
+  right: 100.73.66.0/24
+  also: shared
+  auto: add
+  leftprotoport : 17/1701
+  rightprotoport : 17/%any
+  type : tunnel
+  phase2 : esp
+  also : shared

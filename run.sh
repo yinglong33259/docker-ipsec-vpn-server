@@ -22,8 +22,6 @@ fi
 if ip link add dummy0 type dummy 2>&1 | grep -q "not permitted"; then
 cat 1>&2 <<'EOF'
 Error: This Docker image must be run in privileged mode.
-For detailed instructions, please visit:
-https://github.com/hwdsl2/docker-ipsec-vpn-server
 EOF
   exit 1
 fi
@@ -143,6 +141,15 @@ case $VPN_SHA2_TRUNCBUG in
     ;;
 esac
 
+cat <<EOF
+================================================
+IPsec conn test param!
+ConnName: $PUBLIC_IP
+IPsec PSK: $VPN_IPSEC_PSK
+Username: $VPN_USER
+Password: $VPN_PASSWORD
+EOF
+
 # Create IPsec (Libreswan) config
 cat > /etc/ipsec.conf <<EOF
 config setup
@@ -154,7 +161,6 @@ config setup
 conn shared
   left=%defaultroute
   leftid=$PUBLIC_IP
-  right=%any
   encapsulation=yes
   authby=secret
   pfs=no
@@ -168,6 +174,7 @@ conn shared
   phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
 
 conn L2TP-PSK-NAT
+  right=%any
   auto=add
   leftprotoport=17/1701
   rightprotoport=17/%any
@@ -176,6 +183,7 @@ conn L2TP-PSK-NAT
   also=shared
 
 conn L2TP-PSK-noNAT
+  right=%any
   auto=add
   leftprotoport=17/1701
   rightprotoport=17/%any

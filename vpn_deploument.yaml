@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: docker-vpn
+  namespace: vpntest
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: docker-vpn
+    spec:
+      hostNetwork: true
+      containers:
+      - name: docker-vpn
+        image: registry.nervhub.dev.dingcloud.com/vpntest/vpn:1
+        ports:
+            - name: p1
+              containerPort: 500
+              hostPort: 500
+            - name: p2
+              containerPort: 4500
+              hostPort: 4500
+            - name: p3
+              containerPort: 17
+              hostPort: 17
+            - name: p4
+              containerPort: 1701
+              hostPort: 1701
+        securityContext:
+            privileged: true
+        - envFrom:
+            secretRef:
+                - name: vpn-secret
+            configMapKeyRef:
+                - name: conn-test
+      imagePullSecrets:
+        - name: docker-registry-secret
+      nodeSelector:
+        ipaddr: 100.73.69.118
