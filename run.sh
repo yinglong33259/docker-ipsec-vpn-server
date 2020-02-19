@@ -142,14 +142,16 @@ case $VPN_SHA2_TRUNCBUG in
 esac
 
 
-IPSEC_CONNS=${VPN_IPSEC_CONNS:-'()'}
+IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
+IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
 cat <<EOF
 ================================================
 IPsec conn test param!
-conn_conntest_name: $IPSEC_CONNS
+conn_str: $IPSEC_CONNS_STR
+conn_array: $IPSEC_CONN_ARRAY
 EOF
 
-for element in ${IPSEC_CONNS[*]}
+for element in ${IPSEC_CONN_ARRAY[*]}
 do
 echo "get an ipsec conn name:${element}"
 conn_conntest_name=`eval echo '$'"conn_${element}_name"`
