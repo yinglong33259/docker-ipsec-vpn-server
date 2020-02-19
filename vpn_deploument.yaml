@@ -32,8 +32,8 @@ spec:
         envFrom:
             - secretRef:
                 name: vpn-secret
-            - configMapKeyRef:
-                name: conn-test
+            - configMapRef:
+                name: conntest
         env:
           - name: VPN_IPSEC_CONNS
             value: (conntest)
