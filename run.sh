@@ -142,7 +142,7 @@ case $VPN_SHA2_TRUNCBUG in
 esac
 
 
-IPSEC_CONNS=${VPN_IPSEC_CONNS:-'()'}
+IPSEC_CONNS=(myconn)
 cat <<EOF
 ================================================
 IPsec conn test param!
