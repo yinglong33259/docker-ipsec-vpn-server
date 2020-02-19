@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Docker script to configure and start an IPsec VPN server
 #
@@ -142,17 +142,12 @@ case $VPN_SHA2_TRUNCBUG in
 esac
 
 
-IPSEC_CONNS=(myconn)
+IPSEC_CONNS=${VPN_IPSEC_CONNS:-'()'}
 cat <<EOF
 ================================================
 IPsec conn test param!
 conn_conntest_name: $IPSEC_CONNS
 EOF
-
-for element in ${IPSEC_CONNS[*]}
-do
-echo "get an ipsec conn name:${element}"
-done
 
 for element in ${IPSEC_CONNS[*]}
 do
