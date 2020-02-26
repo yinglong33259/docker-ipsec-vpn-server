@@ -153,50 +153,50 @@ IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
 for element in ${IPSEC_CONN_ARRAY[*]}
 do
 echo "get an ipsec conn name:${element}"
-conn_conntest_name=`eval echo '$'"conn_${element}_name"`
-conn_conntest_right=`eval echo '$'"conn_${element}_right"`
-conn_conntest_also=`eval echo '$'"conn_${element}_also"`
-conn_conntest_auto=`eval echo '$'"conn_${element}_auto"`
-conn_conntest_leftprotoport=`eval echo '$'"conn_${element}_leftprotoport"`
-conn_conntest_rightprotoport=`eval echo '$'"conn_${element}_rightprotoport"`
-conn_conntest_type=`eval echo '$'"conn_${element}_type"`
-conn_conntest_phase2=`eval echo '$'"conn_${element}_phase2"`
-conn_conntest_also=`eval echo '$'"conn_${element}_also"`
-conn_conntest_leftsubnet=`eval echo '$'"conn_${element}_leftsubnet"`
-conn_conntest_rightsubnet=`eval echo '$'"conn_${element}_rightsubnet"`
+conn_name=`eval echo '$'"conn_${element}_name"`
+conn_right=`eval echo '$'"conn_${element}_right"`
+conn_also=`eval echo '$'"conn_${element}_also"`
+conn_auto=`eval echo '$'"conn_${element}_auto"`
+conn_leftprotoport=`eval echo '$'"conn_${element}_leftprotoport"`
+conn_rightprotoport=`eval echo '$'"conn_${element}_rightprotoport"`
+conn_type=`eval echo '$'"conn_${element}_type"`
+conn_phase2=`eval echo '$'"conn_${element}_phase2"`
+conn_also=`eval echo '$'"conn_${element}_also"`
+conn_leftsubnet=`eval echo '$'"conn_${element}_leftsubnet"`
+conn_rightsubnet=`eval echo '$'"conn_${element}_rightsubnet"`
 
-echo "conn $conn_conntest_name" >> /etc/ipsec.conf
-if [ ! -z "$conn_conntest_right" ]; then
-  echo "  right=$conn_conntest_right" >> /etc/ipsec.conf
+echo "conn $conn_name" >> /etc/ipsec.conf
+if [ ! -z "$conn_right" ]; then
+  echo "  right=$conn_right" >> /etc/ipsec.conf
 fi
-if [ ! -z "$conn_conntest_also" ]; then
-  echo "  also=$conn_conntest_also" >> /etc/ipsec.conf
+if [ ! -z "$conn_also" ]; then
+  echo "  also=$conn_also" >> /etc/ipsec.conf
 fi
-if [ ! -z "$conn_conntest_auto" ]; then
-  echo "  auto=$conn_conntest_auto" >> /etc/ipsec.conf
+if [ ! -z "$conn_auto" ]; then
+  echo "  auto=$conn_auto" >> /etc/ipsec.conf
 fi
-if [ ! -z "$conn_conntest_leftprotoport" ]; then
-  echo "  leftprotoport=$conn_conntest_leftprotoport" >> /etc/ipsec.conf
+if [ ! -z "$conn_leftprotoport" ]; then
+  echo "  leftprotoport=$conn_leftprotoport" >> /etc/ipsec.conf
 fi
-if [ ! -z "$conn_conntest_rightprotoport" ]; then
-  echo "  rightprotoport=$conn_conntest_rightprotoport" >> /etc/ipsec.conf
+if [ ! -z "$conn_rightprotoport" ]; then
+  echo "  rightprotoport=$conn_rightprotoport" >> /etc/ipsec.conf
 fi
-if [ ! -z "$conn_conntest_type" ]; then
-  echo "  type=$conn_conntest_type" >> /etc/ipsec.conf
+if [ ! -z "$conn_type" ]; then
+  echo "  type=$conn_type" >> /etc/ipsec.conf
 fi
-if [ ! -z "$conn_conntest_phase2" ]; then
-  echo "  phase2=$conn_conntest_phase2" >> /etc/ipsec.conf
+if [ ! -z "$conn_phase2" ]; then
+  echo "  phase2=$conn_phase2" >> /etc/ipsec.conf
 fi
-if [ ! -z "$conn_conntest_also" ]; then
-  echo "  also=$conn_conntest_also" >> /etc/ipsec.conf
+if [ ! -z "$conn_also" ]; then
+  echo "  also=$conn_also" >> /etc/ipsec.conf
 else
   echo "  also=shared" >> /etc/ipsec.conf
 fi
-if [ ! -z "$conn_conntest_leftsubnet" ]; then
-  echo "  leftsubnet=$conn_conntest_leftsubnet" >> /etc/ipsec.conf
+if [ ! -z "$conn_leftsubnet" ]; then
+  echo "  leftsubnet=$conn_leftsubnet" >> /etc/ipsec.conf
 fi
-if [ ! -z "$conn_conntest_rightsubnet" ]; then
-  echo "  rightsubnet=$conn_conntest_rightsubnet" >> /etc/ipsec.conf
+if [ ! -z "$conn_rightsubnet" ]; then
+  echo "  rightsubnet=$conn_rightsubnet" >> /etc/ipsec.conf
 fi
 done
 
