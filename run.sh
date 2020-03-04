@@ -117,6 +117,7 @@ conn_phase2=`eval echo '$'"conn_${element}_phase2"`
 conn_also=`eval echo '$'"conn_${element}_also"`
 conn_leftsubnet=`eval echo '$'"conn_${element}_leftsubnet"`
 conn_rightsubnet=`eval echo '$'"conn_${element}_rightsubnet"`
+conn_psk=`eval echo '$'"conn_${element}_psk"`
 
 echo "conn $conn_name" >> /etc/ipsec.conf
 if [ ! -z "$conn_right" ]; then
@@ -151,6 +152,11 @@ fi
 if [ ! -z "$conn_rightsubnet" ]; then
   echo "  rightsubnet=$conn_rightsubnet" >> /etc/ipsec.conf
 fi
+
+if [ ! -z "$conn_psk" ]; then
+  echo "$PUBLIC_IP $conn_right : PSK \"$conn_psk\"" >> /etc/ipsec.secrets
+fi
+
 done
 
 # Specify default IPsec PSK
