@@ -320,7 +320,7 @@ cat <<EOF
 IPsec VPN server is now ready for use!
 Connect to your new VPN with these details:
 Server IP: $PUBLIC_IP
-IPsec PSK: $VPN_IPSEC_PSK
+IPsec PSK Any: $VPN_IPSEC_PSK
 Username: $VPN_USER
 Password: $VPN_PASSWORD
 EOF
