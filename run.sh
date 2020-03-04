@@ -28,80 +28,37 @@ fi
 ip link delete dummy0 >/dev/null 2>&1
 
 mkdir -p /opt/src
-vpn_env="/opt/src/vpn.env"
-vpn_gen_env="/opt/src/vpn-gen.env"
-if [ -z "$VPN_IPSEC_PSK" ] && [ -z "$VPN_USER" ] && [ -z "$VPN_PASSWORD" ]; then
-  if [ -f "$vpn_env" ]; then
-    echo
-    echo 'Retrieving VPN credentials...'
-    . "$vpn_env"
-  elif [ -f "$vpn_gen_env" ]; then
-    echo
-    echo 'Retrieving previously generated VPN credentials...'
-    . "$vpn_gen_env"
-  else
-    echo
-    echo 'VPN credentials not set by user. Generating random PSK and password...'
-    VPN_IPSEC_PSK=$(LC_CTYPE=C tr -dc 'A-HJ-NPR-Za-km-z2-9' < /dev/urandom | head -c 20)
-    VPN_USER=vpnuser
-    VPN_PASSWORD=$(LC_CTYPE=C tr -dc 'A-HJ-NPR-Za-km-z2-9' < /dev/urandom | head -c 16)
-
-    printf '%s\n' "VPN_IPSEC_PSK='$VPN_IPSEC_PSK'" > "$vpn_gen_env"
-    printf '%s\n' "VPN_USER='$VPN_USER'" >> "$vpn_gen_env"
-    printf '%s\n' "VPN_PASSWORD='$VPN_PASSWORD'" >> "$vpn_gen_env"
-    chmod 600 "$vpn_gen_env"
-  fi
-fi
 
 # Remove whitespace and quotes around VPN variables, if any
-VPN_IPSEC_PSK=$(nospaces "$VPN_IPSEC_PSK")
-VPN_IPSEC_PSK=$(noquotes "$VPN_IPSEC_PSK")
-VPN_USER=$(nospaces "$VPN_USER")
-VPN_USER=$(noquotes "$VPN_USER")
-VPN_PASSWORD=$(nospaces "$VPN_PASSWORD")
-VPN_PASSWORD=$(noquotes "$VPN_PASSWORD")
+VPN_IPSEC_PSK=$(nospaces "$VPN_DEFAULT_PSK")
+VPN_IPSEC_PSK=$(noquotes "$VPN_DEFAULT_PSK")
+VPN_USER=$(nospaces "$VPN_DEFAULT_USER")
+VPN_USER=$(noquotes "$VPN_DEFAULT_USER")
+VPN_PASSWORD=$(nospaces "$VPN_DEFAULT_PASSWORD")
+VPN_PASSWORD=$(noquotes "$VPN_DEFAULT_PASSWORD")
 
-if [ -n "$VPN_ADDL_USERS" ] && [ -n "$VPN_ADDL_PASSWORDS" ]; then
-  VPN_ADDL_USERS=$(nospaces "$VPN_ADDL_USERS")
-  VPN_ADDL_USERS=$(noquotes "$VPN_ADDL_USERS")
-  VPN_ADDL_USERS=$(onespace "$VPN_ADDL_USERS")
-  VPN_ADDL_USERS=$(noquotes2 "$VPN_ADDL_USERS")
-  VPN_ADDL_PASSWORDS=$(nospaces "$VPN_ADDL_PASSWORDS")
-  VPN_ADDL_PASSWORDS=$(noquotes "$VPN_ADDL_PASSWORDS")
-  VPN_ADDL_PASSWORDS=$(onespace "$VPN_ADDL_PASSWORDS")
-  VPN_ADDL_PASSWORDS=$(noquotes2 "$VPN_ADDL_PASSWORDS")
-else
-  VPN_ADDL_USERS=""
-  VPN_ADDL_PASSWORDS=""
-fi
 
-if printf '%s' "$VPN_IPSEC_PSK $VPN_USER $VPN_PASSWORD $VPN_ADDL_USERS $VPN_ADDL_PASSWORDS" | LC_ALL=C grep -q '[^ -~]\+'; then
+if printf '%s' "$VPN_DEFAULT_PSK $VPN_DEFAULT_USER $VPN_DEFAULT_PASSWORD" | LC_ALL=C grep -q '[^ -~]\+'; then
   exiterr "VPN credentials must not contain non-ASCII characters."
 fi
 
-case "$VPN_IPSEC_PSK $VPN_USER $VPN_PASSWORD $VPN_ADDL_USERS $VPN_ADDL_PASSWORDS" in
+case "$VPN_DEFAULT_PSK $VPN_DEFAULT_USER $VPN_DEFAULT_PASSWORD" in
   *[\\\"\']*)
     exiterr "VPN credentials must not contain these special characters: \\ \" '"
     ;;
 esac
 
-if printf '%s' "$VPN_USER $VPN_ADDL_USERS" | tr ' ' '\n' | sort | uniq -c | grep -qv '^ *1 '; then
+if printf '%s' "$VPN_DEFAULT_USER" | tr ' ' '\n' | sort | uniq -c | grep -qv '^ *1 '; then
   exiterr "VPN usernames must not contain duplicates."
 fi
 
 echo
 echo 'Trying to auto discover IP of this server...'
 
-# In case auto IP discovery fails, manually define the public IP
-# of this server in your 'env' file, as variable 'VPN_PUBLIC_IP'.
+# manually define the public IP as variable 'VPN_PUBLIC_IP'.
 PUBLIC_IP=${VPN_PUBLIC_IP:-''}
 
-# Try to auto discover IP of this server
-[ -z "$PUBLIC_IP" ] && PUBLIC_IP=$(dig @resolver1.opendns.com -t A -4 myip.opendns.com +short)
-
-# Check IP for correct format
-check_ip "$PUBLIC_IP" || PUBLIC_IP=$(wget -t 3 -T 15 -qO- http://ipv4.icanhazip.com)
-check_ip "$PUBLIC_IP" || exiterr "Cannot detect this server's public IP. Define it in your 'env' file as 'VPN_PUBLIC_IP'."
+check_ip "$PUBLIC_IP" || exiterr "Define 'VPN_PUBLIC_IP' error."
 
 VIRTUAL_PRIVATE=${IPSEC_VIRTUAL_PRIVATE:-'%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12'}
 L2TP_NET=${XL2TPD_IP_NET:-'192.168.1.0/24'}
@@ -196,10 +153,8 @@ if [ ! -z "$conn_rightsubnet" ]; then
 fi
 done
 
-# Specify IPsec PSK
-cat > /etc/ipsec.secrets <<EOF
-$PUBLIC_IP  %any  : PSK "$VPN_IPSEC_PSK"
-EOF
+# Specify default IPsec PSK
+echo "$PUBLIC_IP %any : PSK \"$VPN_DEFAULT_PSK\"" >> /etc/ipsec.secrets
 
 # Create xl2tpd config
 cat > /etc/xl2tpd/xl2tpd.conf <<EOF
@@ -241,31 +196,13 @@ EOF
 
 # Create VPN credentials
 cat > /etc/ppp/chap-secrets <<EOF
-"$VPN_USER" * "$VPN_PASSWORD" *
+"$VPN_DEFAULT_USER" * "$VPN_DEFAULT_PASSWORD" *
 EOF
 
-VPN_PASSWORD_ENC=$(openssl passwd -1 "$VPN_PASSWORD")
+VPN_PASSWORD_ENC=$(openssl passwd -1 "$VPN_DEFAULT_PASSWORD")
 cat > /etc/ipsec.d/passwd <<EOF
-$VPN_USER:$VPN_PASSWORD_ENC:xauth-psk
+$VPN_DEFAULT_USER:$VPN_DEFAULT_PASSWORD_ENC:xauth-psk
 EOF
-
-if [ -n "$VPN_ADDL_USERS" ] && [ -n "$VPN_ADDL_PASSWORDS" ]; then
-  count=1
-  addl_user=$(printf '%s' "$VPN_ADDL_USERS" | cut -d ' ' -f 1)
-  addl_password=$(printf '%s' "$VPN_ADDL_PASSWORDS" | cut -d ' ' -f 1)
-  while [ -n "$addl_user" ] && [ -n "$addl_password" ]; do
-    addl_password_enc=$(openssl passwd -1 "$addl_password")
-cat >> /etc/ppp/chap-secrets <<EOF
-"$addl_user" l2tpd "$addl_password" *
-EOF
-cat >> /etc/ipsec.d/passwd <<EOF
-$addl_user:$addl_password_enc:xauth-psk
-EOF
-    count=$((count+1))
-    addl_user=$(printf '%s' "$VPN_ADDL_USERS" | cut -s -d ' ' -f "$count")
-    addl_password=$(printf '%s' "$VPN_ADDL_PASSWORDS" | cut -s -d ' ' -f "$count")
-  done
-fi
 
 # Update sysctl settings
 SYST='/sbin/sysctl -e -q -w'
@@ -320,27 +257,10 @@ cat <<EOF
 IPsec VPN server is now ready for use!
 Connect to your new VPN with these details:
 Server IP: $PUBLIC_IP
-IPsec PSK Any: $VPN_IPSEC_PSK
-Username: $VPN_USER
-Password: $VPN_PASSWORD
+IPsec PSK Any: $VPN_DEFAULT_PSK
+Username: $VPN_DEFAULT_USER
+Password: $VPN_DEFAULT_PASSWORD
 EOF
-
-if [ -n "$VPN_ADDL_USERS" ] && [ -n "$VPN_ADDL_PASSWORDS" ]; then
-  count=1
-  addl_user=$(printf '%s' "$VPN_ADDL_USERS" | cut -d ' ' -f 1)
-  addl_password=$(printf '%s' "$VPN_ADDL_PASSWORDS" | cut -d ' ' -f 1)
-cat <<'EOF'
-Additional VPN users (username | password):
-EOF
-  while [ -n "$addl_user" ] && [ -n "$addl_password" ]; do
-cat <<EOF
-$addl_user | $addl_password
-EOF
-    count=$((count+1))
-    addl_user=$(printf '%s' "$VPN_ADDL_USERS" | cut -s -d ' ' -f "$count")
-    addl_password=$(printf '%s' "$VPN_ADDL_PASSWORDS" | cut -s -d ' ' -f "$count")
-  done
-fi
 
 # Start services
 mkdir -p /run/pluto /var/run/pluto /var/run/xl2tpd
