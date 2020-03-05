@@ -77,7 +77,7 @@ esac
 # Create IPsec (Libreswan) config
 cat > /etc/ipsec.conf <<EOF
 config setup
-  virtual-private=$VIRTUAL_PRIVATE%,v4:!$L2TP_NET
+  virtual-private=$VIRTUAL_PRIVATE,%v4:!$L2TP_NET
   protostack=netkey
   interfaces=%defaultroute
   uniqueids=no
