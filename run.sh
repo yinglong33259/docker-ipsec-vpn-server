@@ -120,8 +120,9 @@ conn_rightsubnet=`eval echo '$'"conn_${element}_rightsubnet"`
 conn_psk=`eval echo '$'"conn_${element}_psk"`
 #add nat conn
 echo "conn $conn_name" >> /etc/ipsec.conf
+echo "  right=%any" >> /etc/ipsec.conf
 if [ ! -z "$conn_right" ]; then
-  echo "  right=$conn_right" >> /etc/ipsec.conf
+  echo "  rightid=$conn_right" >> /etc/ipsec.conf
 fi
 if [ ! -z "$conn_auto" ]; then
   echo "  auto=$conn_auto" >> /etc/ipsec.conf
@@ -151,8 +152,9 @@ if [ ! -z "$conn_rightsubnet" ]; then
 fi
 #add no nat conn
 echo "conn $conn_name-noNAT" >> /etc/ipsec.conf
+echo "  right=%any" >> /etc/ipsec.conf
 if [ ! -z "$conn_right" ]; then
-  echo "  right=$conn_right" >> /etc/ipsec.conf
+  echo "  rightid=$conn_right" >> /etc/ipsec.conf
 fi
 if [ ! -z "$conn_auto" ]; then
   echo "  auto=$conn_auto" >> /etc/ipsec.conf
