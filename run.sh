@@ -64,6 +64,7 @@ VIRTUAL_PRIVATE=${IPSEC_VIRTUAL_PRIVATE:-'%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:
 L2TP_NET=${XL2TPD_IP_NET:-'52.0.99.0/24'}
 L2TP_LOCAL=${XL2TPD_LOCAL_IP:-'52.0.99.9'}
 L2TP_POOL=${XL2TPD_IP_RANGE:-'52.0.99.10-52.0.99.200'}
+L2TP_FORWARD_NIC=${XL2TPD_FORWARD_NIC:-'"eth+"'}
 
 case $VPN_SHA2_TRUNCBUG in
   [yY][eE][sS])
@@ -270,17 +271,17 @@ iptables -I INPUT 4 -p udp -m multiport --dports 500,4500 -j ACCEPT
 iptables -I INPUT 5 -p udp --dport 1701 -m policy --dir in --pol ipsec -j ACCEPT
 iptables -I INPUT 6 -p udp --dport 1701 -j DROP
 iptables -I FORWARD 1 -m conntrack --ctstate INVALID -j DROP
-iptables -I FORWARD 2 -i eth+ -o ppp+ -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-iptables -I FORWARD 3 -i ppp+ -o eth+ -j ACCEPT
+iptables -I FORWARD 2 -i "$L2TP_FORWARD_NIC" -o ppp+ -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+iptables -I FORWARD 3 -i ppp+ -o "$L2TP_FORWARD_NIC" -j ACCEPT
 iptables -I FORWARD 4 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j ACCEPT
-# iptables -I FORWARD 5 -i eth+ -d "$XAUTH_NET" -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-# iptables -I FORWARD 6 -s "$XAUTH_NET" -o eth+ -j ACCEPT
+# iptables -I FORWARD 5 -i "$L2TP_FORWARD_NIC" -d "$XAUTH_NET" -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+# iptables -I FORWARD 6 -s "$XAUTH_NET" -o "$L2TP_FORWARD_NIC" -j ACCEPT
 # Uncomment if you wish to disallow traffic between VPN clients themselves
 iptables -I FORWARD 2 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j DROP
 # iptables -I FORWARD 3 -s "$XAUTH_NET" -d "$XAUTH_NET" -j DROP
 iptables -A FORWARD -j DROP
-#iptables -t nat -I POSTROUTING -s "$XAUTH_NET" -o eth+ -m policy --dir out --pol none -j MASQUERADE
-iptables -t nat -I POSTROUTING -s "$L2TP_NET" -o eth+ -j MASQUERADE
+#iptables -t nat -I POSTROUTING -s "$XAUTH_NET" -o "$L2TP_FORWARD_NIC" -m policy --dir out --pol none -j MASQUERADE
+iptables -t nat -I POSTROUTING -s "$L2TP_NET" -o "$L2TP_FORWARD_NIC" -j MASQUERADE
 
 # Update file attributes
 chmod 600 /etc/ipsec.secrets /etc/ppp/chap-secrets /etc/ipsec.d/passwd
