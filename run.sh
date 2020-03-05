@@ -118,13 +118,10 @@ conn_also=`eval echo '$'"conn_${element}_also"`
 conn_leftsubnet=`eval echo '$'"conn_${element}_leftsubnet"`
 conn_rightsubnet=`eval echo '$'"conn_${element}_rightsubnet"`
 conn_psk=`eval echo '$'"conn_${element}_psk"`
-
+#add nat conn
 echo "conn $conn_name" >> /etc/ipsec.conf
 if [ ! -z "$conn_right" ]; then
   echo "  right=$conn_right" >> /etc/ipsec.conf
-fi
-if [ ! -z "$conn_also" ]; then
-  echo "  also=$conn_also" >> /etc/ipsec.conf
 fi
 if [ ! -z "$conn_auto" ]; then
   echo "  auto=$conn_auto" >> /etc/ipsec.conf
@@ -140,6 +137,34 @@ if [ ! -z "$conn_type" ]; then
 fi
 if [ ! -z "$conn_phase2" ]; then
   echo "  phase2=$conn_phase2" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_also" ]; then
+  echo "  also=$conn_also" >> /etc/ipsec.conf
+else
+  echo "  also=shared" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_leftsubnet" ]; then
+  echo "  leftsubnet=$conn_leftsubnet" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_rightsubnet" ]; then
+  echo "  rightsubnet=$conn_rightsubnet" >> /etc/ipsec.conf
+fi
+#add no nat conn
+echo "conn $conn_name-noNAT" >> /etc/ipsec.conf
+if [ ! -z "$conn_right" ]; then
+  echo "  right=$conn_right" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_auto" ]; then
+  echo "  auto=$conn_auto" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_leftprotoport" ]; then
+  echo "  leftprotoport=$conn_leftprotoport" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_rightprotoport" ]; then
+  echo "  rightprotoport=$conn_rightprotoport" >> /etc/ipsec.conf
+fi
+if [ ! -z "$conn_type" ]; then
+  echo "  type=transport" >> /etc/ipsec.conf
 fi
 if [ ! -z "$conn_also" ]; then
   echo "  also=$conn_also" >> /etc/ipsec.conf
