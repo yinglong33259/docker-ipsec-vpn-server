@@ -308,13 +308,20 @@ service rsyslog restart
 service ipsec restart
 sed -i '/pluto\.pid/a service rsyslog restart' /opt/src/run.sh
 
+while [ true ]; do
+#update ipsec conn
+
+
+
+
+
+
+#report vpn info
 if [ ! -z "$REPORTER_ADDR" ]; then
 cat <<EOF
 ================================================
-Start report status to nerv vpn server
+Report vpn connections info to nerv vpn server:$REPORTER_ADDR
 EOF
-
-while [ true ]; do
 /bin/sleep $REPORTER_INTERVAL
 connstatus=`ipsec whack --trafficstatus | tr "\n" ";"`
 #
@@ -332,6 +339,7 @@ curl -s --location --request POST "$REPORTER_ADDR" \
     \"vpn\":\"$VPN_DEFAULT_PSK\",
     \"status\":\"$connstatus\"
 }"
+fi
+
 done
 
-fi
