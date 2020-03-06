@@ -82,7 +82,16 @@ config setup
   protostack=netkey
   interfaces=%defaultroute
   uniqueids=no
+EOF
 
+#添加所有conn配置，添加到配置文件里面
+IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
+IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
+
+for element in ${IPSEC_CONN_ARRAY[*]}
+do
+conn_file=/opt/src/ipsec_nerv_${element}.conf
+cat > $conn_file <<EOF
 conn shared
   left=%defaultroute
   leftid=$PUBLIC_IP
@@ -97,16 +106,8 @@ conn shared
   ikev2=never
   ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
   phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
-
 EOF
 
-#添加所有conn配置，添加到配置文件里面
-IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
-IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
-
-for element in ${IPSEC_CONN_ARRAY[*]}
-do
-echo "get an ipsec conn name:${element}"
 conn_name=`eval echo '$'"conn_${element}_name"`
 conn_right=`eval echo '$'"conn_${element}_right"`
 conn_also=`eval echo '$'"conn_${element}_also"`
@@ -120,69 +121,36 @@ conn_leftsubnet=`eval echo '$'"conn_${element}_leftsubnet"`
 conn_rightsubnet=`eval echo '$'"conn_${element}_rightsubnet"`
 conn_psk=`eval echo '$'"conn_${element}_psk"`
 #add nat conn
-echo "conn $conn_name" >> /etc/ipsec.conf
-echo "  right=%any" >> /etc/ipsec.conf
+echo "conn $conn_name" >> $conn_file
+echo "  right=%any" >> $conn_file
 if [ ! -z "$conn_right" ]; then
-  echo "  rightid=$conn_right" >> /etc/ipsec.conf
+  echo "  rightid=$conn_right" >> $conn_file
 fi
 if [ ! -z "$conn_auto" ]; then
-  echo "  auto=$conn_auto" >> /etc/ipsec.conf
+  echo "  auto=$conn_auto" >> $conn_file
 fi
 if [ ! -z "$conn_leftprotoport" ]; then
-  echo "  leftprotoport=$conn_leftprotoport" >> /etc/ipsec.conf
+  echo "  leftprotoport=$conn_leftprotoport" >> $conn_file
 fi
 if [ ! -z "$conn_rightprotoport" ]; then
-  echo "  rightprotoport=$conn_rightprotoport" >> /etc/ipsec.conf
+  echo "  rightprotoport=$conn_rightprotoport" >> $conn_file
 fi
 if [ ! -z "$conn_type" ]; then
-  echo "  type=$conn_type" >> /etc/ipsec.conf
+  echo "  type=$conn_type" >> $conn_file
 fi
 if [ ! -z "$conn_phase2" ]; then
-  echo "  phase2=$conn_phase2" >> /etc/ipsec.conf
+  echo "  phase2=$conn_phase2" >> $conn_file
 fi
 if [ ! -z "$conn_also" ]; then
-  echo "  also=$conn_also" >> /etc/ipsec.conf
+  echo "  also=$conn_also" >> $conn_file
 else
-  echo "  also=shared" >> /etc/ipsec.conf
+  echo "  also=shared" >> $conn_file
 fi
 if [ ! -z "$conn_leftsubnet" ]; then
-  echo "  leftsubnet=$conn_leftsubnet" >> /etc/ipsec.conf
+  echo "  leftsubnet=$conn_leftsubnet" >> $conn_file
 fi
 if [ ! -z "$conn_rightsubnet" ]; then
-  echo "  rightsubnet=$conn_rightsubnet" >> /etc/ipsec.conf
-fi
-#add no nat conn
-echo "conn $conn_name-noNAT" >> /etc/ipsec.conf
-echo "  right=%any" >> /etc/ipsec.conf
-if [ ! -z "$conn_right" ]; then
-  echo "  rightid=$conn_right" >> /etc/ipsec.conf
-fi
-if [ ! -z "$conn_auto" ]; then
-  echo "  auto=$conn_auto" >> /etc/ipsec.conf
-fi
-if [ ! -z "$conn_leftprotoport" ]; then
-  echo "  leftprotoport=$conn_leftprotoport" >> /etc/ipsec.conf
-fi
-if [ ! -z "$conn_rightprotoport" ]; then
-  echo "  rightprotoport=$conn_rightprotoport" >> /etc/ipsec.conf
-fi
-if [ ! -z "$conn_type" ]; then
-  echo "  type=transport" >> /etc/ipsec.conf
-fi
-if [ ! -z "$conn_also" ]; then
-  echo "  also=$conn_also" >> /etc/ipsec.conf
-else
-  echo "  also=shared" >> /etc/ipsec.conf
-fi
-if [ ! -z "$conn_leftsubnet" ]; then
-  echo "  leftsubnet=$conn_leftsubnet" >> /etc/ipsec.conf
-fi
-if [ ! -z "$conn_rightsubnet" ]; then
-  echo "  rightsubnet=$conn_rightsubnet" >> /etc/ipsec.conf
-fi
-
-if [ ! -z "$conn_psk" ]; then
-  echo "$PUBLIC_IP $conn_right : PSK \"$conn_psk\"" >> /etc/ipsec.secrets
+  echo "  rightsubnet=$conn_rightsubnet" >> $conn_file
 fi
 
 done
