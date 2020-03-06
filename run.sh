@@ -308,4 +308,15 @@ cat <<EOF
 Start report status to nerv vpn server
 EOF
 
-exec /opt/src/agent.sh -D
+while [ true ]; do
+/bin/sleep 10
+connstatus=`ipsec whack --trafficstatus`
+
+curl --location --request POST 'http://100.73.142.78:5547/api/objs/VpnConnectionStatusReport' \
+--header 'NERV-TOKEN: 72e9ff31a36f9694601d2ec77a8007f7' \
+--header 'Content-Type: text/plain' \
+--data-raw "{
+    \"vpn\":\"$VPN_DEFAULT_PSK\",
+    \"status\":\"$connstatus\"
+}"
+done

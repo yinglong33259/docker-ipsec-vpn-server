@@ -46,8 +46,7 @@ RUN apt-get -yqq update && apt-get -y install rsyslog curl\
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./run.sh /opt/src/run.sh
-COPY ./agent.sh /opt/src/agent.sh
-RUN chmod 755 /opt/src/run.sh /opt/src/agent.sh
+RUN chmod 755 /opt/src/run.sh
 
 EXPOSE 500/udp 4500/udp 17/udp 1701/udp 
 
