@@ -317,11 +317,11 @@ while [ true ]; do
 /bin/sleep 10
 connstatus=`ipsec whack --trafficstatus`
 #
-connstatus=${connstatus//\"/\\\\\"}
-connstatus=${connstatus//\,/\\\\\,}
-connstatus=${connstatus//\:/\\\\\:}
-connstatus=${connstatus//\[/\\\\\[}
-connstatus=${connstatus//\]/\\\\\]}
+connstatus=${connstatus//\"/\\\\\\"}
+connstatus=${connstatus//\,/\\\\\\,}
+connstatus=${connstatus//\:/\\\\\\:}
+connstatus=${connstatus//\[/\\\\\\[}
+connstatus=${connstatus//\]/\\\\\\]}
 
 echo $connstatus
 
