@@ -317,6 +317,7 @@ while [ true ]; do
 /bin/sleep 10
 connstatus=`ipsec whack --trafficstatus`
 #
+connstatus=${connstatus//\\n/";"}
 connstatus=${connstatus//\"/""}
 connstatus=${connstatus//\,/""}
 connstatus=${connstatus//\:/""}
