@@ -303,4 +303,9 @@ rm -f /run/pluto/pluto.pid /var/run/pluto/pluto.pid /var/run/xl2tpd.pid
 /usr/local/sbin/ipsec start
 /usr/sbin/xl2tpd -D -c /etc/xl2tpd/xl2tpd.conf
 
+cat <<EOF
+================================================
+Start report status to nerv vpn server
+EOF
+
 exec /opt/src/agent.sh
