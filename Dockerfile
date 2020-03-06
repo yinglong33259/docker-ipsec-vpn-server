@@ -7,7 +7,7 @@ ENV L2TP_VER 1.3.14
 
 WORKDIR /opt/src
 
-RUN apt-get -yqq update && apt-get -y install rsyslog\
+RUN apt-get -yqq update && apt-get -y install rsyslog curl\
     && apt-get -yqq --no-install-recommends install \
          wget dnsutils openssl ca-certificates kmod \
          iproute gawk grep sed net-tools iptables \
@@ -46,7 +46,8 @@ RUN apt-get -yqq update && apt-get -y install rsyslog\
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./run.sh /opt/src/run.sh
-RUN chmod 755 /opt/src/run.sh
+COPY ./agent.sh /opt/src/agent.sh
+RUN chmod 755 /opt/src/run.sh /opt/src/agent.sh
 
 EXPOSE 500/udp 4500/udp 17/udp 1701/udp 
 
