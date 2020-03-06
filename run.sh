@@ -303,6 +303,11 @@ rm -f /run/pluto/pluto.pid /var/run/pluto/pluto.pid /var/run/xl2tpd.pid
 /usr/local/sbin/ipsec start
 /usr/sbin/xl2tpd -c /etc/xl2tpd/xl2tpd.conf
 
+#log
+service rsyslog restart
+service ipsec restart
+sed -i '/pluto\.pid/a service rsyslog restart' /opt/src/run.sh
+
 cat <<EOF
 ================================================
 Start report status to nerv vpn server
@@ -317,6 +322,8 @@ connstatus=${connstatus//\,/\\\,}
 connstatus=${connstatus//\:/\\\:}
 connstatus=${connstatus//\[/\\\[}
 connstatus=${connstatus//\]/\\\]}
+
+echo connstatus
 
 curl --location --request POST 'http://100.73.142.78:5547/api/objs/VpnConnectionStatusReport' \
 --header 'NERV-TOKEN: 72e9ff31a36f9694601d2ec77a8007f7' \
