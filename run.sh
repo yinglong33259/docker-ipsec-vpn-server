@@ -324,9 +324,7 @@ connstatus=${connstatus//\:/""}
 connstatus=${connstatus//[/" "}
 connstatus=${connstatus//]/""}
 
-echo $connstatus
-
-curl --location --request POST 'http://100.73.142.78:5547/api/objs/VpnConnectionStatusReport' \
+curl -s --location --request POST "$REPORTER_ADDR" \
 --header 'NERV-TOKEN: 72e9ff31a36f9694601d2ec77a8007f7' \
 --header 'Content-Type: text/plain' \
 --data-raw "{
