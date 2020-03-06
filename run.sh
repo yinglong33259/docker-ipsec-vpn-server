@@ -308,4 +308,4 @@ cat <<EOF
 Start report status to nerv vpn server
 EOF
 
-exec /opt/src/agent.sh
+exec /opt/src/agent.sh -D
