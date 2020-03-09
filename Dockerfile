@@ -6,7 +6,7 @@ ENV SWAN_VER 3.29
 ENV L2TP_VER 1.3.14
 
 RUN mkdir /opt/src
-RUN chmod 777 /opt/src
+RUN chmod -R 777 /opt/src
 WORKDIR /opt/src
 
 RUN apt-get -yqq update && apt-get -y install rsyslog curl\
