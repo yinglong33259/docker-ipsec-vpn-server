@@ -323,7 +323,7 @@ function update_conns(){
                     break
                 fi
             done
-            if [ is_new_conn == 1 ];then
+            if [ $is_new_conn == 1 ];then
                 add_conn $new_ele
             fi
         done
@@ -338,7 +338,7 @@ function update_conns(){
                     break
                 fi
             done
-            if [ is_new_conn == 1 ];then
+            if [ $is_new_conn == 1 ];then
                 del_conn $new_ele
             fi
         done
