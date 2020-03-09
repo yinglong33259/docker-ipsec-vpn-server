@@ -285,7 +285,7 @@ function update_conns() {
 
 while [ true ]; do
 #update ipsec conn
-
+update_conns
 
 
 
