@@ -316,7 +316,7 @@ function update_conns(){
         for new_ele in ${NEW_IPSEC_CONN_ARRAY[*]}
         do
             is_new_conn=1
-            for old_ele in ${IPSEC_CONNS_STR[*]}
+            for old_ele in ${IPSEC_CONN_ARRAY[*]}
             do
                 if [ "$new_ele" == "$old_ele" ];then
                     is_new_conn=0
@@ -328,7 +328,7 @@ function update_conns(){
             fi
         done
         #find deleted connections
-        for old_ele in ${IPSEC_CONNS_STR[*]}
+        for old_ele in ${IPSEC_CONN_ARRAY[*]}
         do
             is_deleted_conn=1
             for new_ele in ${NEW_IPSEC_CONN_ARRAY[*]}
@@ -344,6 +344,7 @@ function update_conns(){
         done
         #record conn status for next comparison
         IPSEC_CONNS_STR=$NEW_IPSEC_CONNS_STR
+        IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
     fi
 }
 
