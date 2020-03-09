@@ -290,22 +290,69 @@ service rsyslog restart
 service ipsec restart
 sed -i '/pluto\.pid/a service rsyslog restart' /opt/src/run.sh
 
+cat <<EOF
+================================================
+Listen vpn connections change enent...
+Report vpn connections info to nerv vpn server:$REPORTER_ADDR
+Time interval:$REPORTER_INTERVAL
+EOF
+
+function add_conn(){
+    echo "start add vpn connection:${1}"
+    echo "add vpn connection:${1} success"
+}
+
+function del_conn(){
+    echo "start delete vpn connection:${1}"
+    echo "delete vpn connection:${1} success"
+}
+
+function update_conns(){
+    NEW_IPSEC_CONNS_STR=$(cat /opt/src/nerv/VPN_IPSEC_CONNS)
+    if [ "$NEW_IPSEC_CONNS_STR" != "$IPSEC_CONNS_STR" ];then
+        echo "Got a vpn connections change event, start processing..."
+        NEW_IPSEC_CONN_ARRAY=(${NEW_IPSEC_CONNS_STR//,/ })
+        #find new connections
+        for new_ele in ${NEW_IPSEC_CONN_ARRAY[*]}
+        do
+            is_new_conn=1
+            for old_ele in ${IPSEC_CONNS_STR[*]}
+            do
+                if [ "$new_ele" == "$old_ele" ];then
+                    is_new_conn=0
+                    break
+                fi
+            done
+            if [ is_new_conn == 1 ];then
+                add_conn $new_ele
+            fi
+        done
+        #find deleted connections
+        for old_ele in ${IPSEC_CONNS_STR[*]}
+        do
+            is_deleted_conn=1
+            for new_ele in ${NEW_IPSEC_CONN_ARRAY[*]}
+            do
+                if [ "$new_ele" == "$old_ele" ];then
+                    is_new_conn=0
+                    break
+                fi
+            done
+            if [ is_new_conn == 1 ];then
+                del_conn $new_ele
+            fi
+        done
+        #record conn status for next comparison
+        IPSEC_CONNS_STR=$NEW_IPSEC_CONNS_STR
+    fi
+}
+
 while [ true ]; do
 #update ipsec conn
-NEW_IPSEC_CONNS_STR=$(cat /opt/src/nerv/VPN_IPSEC_CONNS)
-if [ "$NEW_IPSEC_CONNS_STR" != "$IPSEC_CONNS_STR" ];then
-    echo "get a vpn connections change event, start processing..."
-    IPSEC_CONNS_STR=$NEW_IPSEC_CONNS_STR
-fi
-
-
+update_conns
 
 #report vpn info
 if [ ! -z "$REPORTER_ADDR" ]; then
-cat <<EOF
-================================================
-Report vpn connections info to nerv vpn server:$REPORTER_ADDR
-EOF
 /bin/sleep $REPORTER_INTERVAL
 connstatus=`ipsec whack --trafficstatus | tr "\n" ";"`
 #
