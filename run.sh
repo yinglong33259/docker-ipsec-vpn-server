@@ -254,6 +254,10 @@ function add_conn(){
     echo "${1} leftsubnet: $conn_leftsubnet"
     echo "${1} rightsubnet: $conn_rightsubnet"
     echo "${1} psk: $conn_psk"
+    #appen psk to /etc/ipsec.secrets
+    if [ ! -z "$conn_psk" ]; then
+      echo "$PUBLIC_IP $conn_right : PSK \"$conn_psk\"" >> /etc/ipsec.secrets
+    fi
     #generate vpn conn config file
     conn_file=/opt/src/ipsec_nerv_${1}.conf
 cat > $conn_file <<EOF
