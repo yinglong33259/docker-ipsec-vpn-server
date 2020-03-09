@@ -235,7 +235,7 @@ function add_conn(){
     conn_name=$(cat /opt/src/nerv/conn_${1}_name)
     conn_right=$(cat /opt/src/nerv/conn_${1}_right)
     conn_also=$(cat /opt/src/nerv/conn_${1}_also)
-    conn_auto=$(cat /opt/src/nerv/conn_${1}_conn_auto)
+    conn_auto=$(cat /opt/src/nerv/conn_${1}_auto)
     conn_leftprotoport=$(cat /opt/src/nerv/conn_${1}_leftprotoport)
     conn_rightprotoport=$(cat /opt/src/nerv/conn_${1}_rightprotoport)
     conn_type=$(cat /opt/src/nerv/conn_${1}_type)
@@ -275,7 +275,6 @@ conn shared
   ikev2=never
   ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
   phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
-  secretsfile=/etc/ipsec.secrets
 EOF
     echo "conn $conn_name" >> $conn_file
     echo "  right=%any" >> $conn_file
@@ -310,7 +309,7 @@ EOF
     fi
     #ipsec start connections
     ipsec addconn ${1} --config $conn_file
-
+    ipsec auto --rereadsecrets
     echo "add vpn connection:${1} success"
 }
 
@@ -321,6 +320,7 @@ function del_conn(){
     rm -f $conn_file
     #ipsec delete connections
     ipsec auto --delete ${1}
+    ipsec auto --rereadsecrets
     echo "delete vpn connection:${1} success"
 }
 
