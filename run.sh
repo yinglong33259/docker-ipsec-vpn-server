@@ -30,7 +30,7 @@ ip link delete dummy0 >/dev/null 2>&1
 mkdir -p /opt/src
 
 echo "$VPN_DEFAULT_USER"
-ss=$(cat /opt/src/VPN_DEFAULT_USER)
+ss=$(cat /opt/src/nerv/VPN_DEFAULT_USER)
 echo $ss
 
 # Remove whitespace and quotes around VPN variables, if any
