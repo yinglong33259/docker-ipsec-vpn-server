@@ -98,76 +98,9 @@ config setup
   uniqueids=no
 EOF
 
-#添加所有conn配置，添加到配置文件里面
+#找到当前所有连接
 IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
 IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
-
-for element in ${IPSEC_CONN_ARRAY[*]}
-do
-conn_file=/opt/src/ipsec_nerv_${element}.conf
-cat > $conn_file <<EOF
-conn shared
-  left=%defaultroute
-  leftid=$PUBLIC_IP
-  encapsulation=yes
-  authby=secret
-  pfs=no
-  rekey=no
-  keyingtries=5
-  dpddelay=30
-  dpdtimeout=120
-  dpdaction=clear
-  ikev2=never
-  ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
-  phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
-EOF
-
-conn_name=`eval echo '$'"conn_${element}_name"`
-conn_right=`eval echo '$'"conn_${element}_right"`
-conn_also=`eval echo '$'"conn_${element}_also"`
-conn_auto=`eval echo '$'"conn_${element}_auto"`
-conn_leftprotoport=`eval echo '$'"conn_${element}_leftprotoport"`
-conn_rightprotoport=`eval echo '$'"conn_${element}_rightprotoport"`
-conn_type=`eval echo '$'"conn_${element}_type"`
-conn_phase2=`eval echo '$'"conn_${element}_phase2"`
-conn_also=`eval echo '$'"conn_${element}_also"`
-conn_leftsubnet=`eval echo '$'"conn_${element}_leftsubnet"`
-conn_rightsubnet=`eval echo '$'"conn_${element}_rightsubnet"`
-conn_psk=`eval echo '$'"conn_${element}_psk"`
-#add nat conn
-echo "conn $conn_name" >> $conn_file
-echo "  right=%any" >> $conn_file
-if [ ! -z "$conn_right" ]; then
-  echo "  rightid=$conn_right" >> $conn_file
-fi
-if [ ! -z "$conn_auto" ]; then
-  echo "  auto=$conn_auto" >> $conn_file
-fi
-if [ ! -z "$conn_leftprotoport" ]; then
-  echo "  leftprotoport=$conn_leftprotoport" >> $conn_file
-fi
-if [ ! -z "$conn_rightprotoport" ]; then
-  echo "  rightprotoport=$conn_rightprotoport" >> $conn_file
-fi
-if [ ! -z "$conn_type" ]; then
-  echo "  type=$conn_type" >> $conn_file
-fi
-if [ ! -z "$conn_phase2" ]; then
-  echo "  phase2=$conn_phase2" >> $conn_file
-fi
-if [ ! -z "$conn_also" ]; then
-  echo "  also=$conn_also" >> $conn_file
-else
-  echo "  also=shared" >> $conn_file
-fi
-if [ ! -z "$conn_leftsubnet" ]; then
-  echo "  leftsubnet=$conn_leftsubnet" >> $conn_file
-fi
-if [ ! -z "$conn_rightsubnet" ]; then
-  echo "  rightsubnet=$conn_rightsubnet" >> $conn_file
-fi
-
-done
 
 # Specify default IPsec PSK
 echo "$PUBLIC_IP %any : PSK \"$VPN_DEFAULT_PSK\"" >> /etc/ipsec.secrets
