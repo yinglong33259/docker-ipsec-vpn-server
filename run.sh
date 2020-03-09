@@ -413,12 +413,12 @@ function update_conns(){
             for new_ele in ${NEW_IPSEC_CONN_ARRAY[*]}
             do
                 if [ "$new_ele" == "$old_ele" ];then
-                    is_new_conn=0
+                    is_deleted_conn=0
                     break
                 fi
             done
-            if [ $is_new_conn == 1 ];then
-                del_conn $new_ele
+            if [ $is_deleted_conn == 1 ];then
+                del_conn $old_ele
             fi
         done
         #record conn status for next comparison
