@@ -276,18 +276,12 @@ service rsyslog restart
 service ipsec restart
 sed -i '/pluto\.pid/a service rsyslog restart' /opt/src/run.sh
 
-function update_conns() {
-    NEW_IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
-    if [ "$NEW_IPSEC_CONNS_STR" != "$IPSEC_CONNS_STR" ];then
-        echo "get a vpn connections change event, start processing..."
-    fi
-}
-
 while [ true ]; do
 #update ipsec conn
-update_conns
-
-
+NEW_IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
+if [ "$NEW_IPSEC_CONNS_STR" != "$IPSEC_CONNS_STR" ];then
+    echo "get a vpn connections change event, start processing..."
+fi
 
 
 
