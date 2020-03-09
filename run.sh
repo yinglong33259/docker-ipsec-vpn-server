@@ -299,17 +299,17 @@ EOF
 
 function add_conn(){
     echo "start add vpn connection:${1}"
-    conn_name=$(cat /opt/src/nerv/conn_${element}_name)
-    conn_right=$(cat /opt/src/nerv/conn_${element}_right)
-    conn_also=$(cat /opt/src/nerv/conn_${element}_also)
-    conn_auto=$(cat /opt/src/nerv/conn_${element}conn_auto)
-    conn_leftprotoport=$(cat /opt/src/nerv/conn_${element}_leftprotoport)
-    conn_rightprotoport=$(cat /opt/src/nerv/conn_${element}_rightprotoport)
-    conn_type=$(cat /opt/src/nerv/conn_${element}_type)
-    conn_phase2=$(cat /opt/src/nerv/conn_${element}_phase2)
-    conn_leftsubnet=$(cat /opt/src/nerv/conn_${element}_leftsubnet)
-    conn_rightsubnet=$(cat /opt/src/nerv/conn_${element}_rightsubnet)
-    conn_psk=$(cat /opt/src/nerv/conn_${element}_psk)
+    conn_name=$(cat /opt/src/nerv/conn_${1}_name)
+    conn_right=$(cat /opt/src/nerv/conn_${1}_right)
+    conn_also=$(cat /opt/src/nerv/conn_${1}_also)
+    conn_auto=$(cat /opt/src/nerv/conn_${1}conn_auto)
+    conn_leftprotoport=$(cat /opt/src/nerv/conn_${1}_leftprotoport)
+    conn_rightprotoport=$(cat /opt/src/nerv/conn_${1}_rightprotoport)
+    conn_type=$(cat /opt/src/nerv/conn_${1}_type)
+    conn_phase2=$(cat /opt/src/nerv/conn_${1}_phase2)
+    conn_leftsubnet=$(cat /opt/src/nerv/conn_${1}_leftsubnet)
+    conn_rightsubnet=$(cat /opt/src/nerv/conn_${1}_rightsubnet)
+    conn_psk=$(cat /opt/src/nerv/conn_${1}_psk)
     echo "${1} name: $conn_name"
     echo "${1} right_id: $conn_right"
     echo "${1} also: $conn_also"
@@ -380,7 +380,7 @@ function del_conn(){
     echo "start delete vpn connection:${1}"
     #delete vpn conn config file
     conn_file=/opt/src/ipsec_nerv_${1}.conf
-    rm $conn_file -y
+    rm -f $conn_file
     #ipsec delete connections
     ipsec auto --delete ${1}
     echo "delete vpn connection:${1} success"
