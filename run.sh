@@ -302,7 +302,7 @@ function add_conn(){
     conn_name=$(cat /opt/src/nerv/conn_${1}_name)
     conn_right=$(cat /opt/src/nerv/conn_${1}_right)
     conn_also=$(cat /opt/src/nerv/conn_${1}_also)
-    conn_auto=$(cat /opt/src/nerv/conn_${1}conn_auto)
+    conn_auto=$(cat /opt/src/nerv/conn_${1}_conn_auto)
     conn_leftprotoport=$(cat /opt/src/nerv/conn_${1}_leftprotoport)
     conn_rightprotoport=$(cat /opt/src/nerv/conn_${1}_rightprotoport)
     conn_type=$(cat /opt/src/nerv/conn_${1}_type)
