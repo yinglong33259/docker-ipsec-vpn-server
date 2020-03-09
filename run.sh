@@ -299,11 +299,90 @@ EOF
 
 function add_conn(){
     echo "start add vpn connection:${1}"
+    conn_name=$(cat /opt/src/nerv/conn_${element}_name)
+    conn_right=$(cat /opt/src/nerv/conn_${element}_right)
+    conn_also=$(cat /opt/src/nerv/conn_${element}_also)
+    conn_auto=$(cat /opt/src/nerv/conn_${element}conn_auto)
+    conn_leftprotoport=$(cat /opt/src/nerv/conn_${element}_leftprotoport)
+    conn_rightprotoport=$(cat /opt/src/nerv/conn_${element}_rightprotoport)
+    conn_type=$(cat /opt/src/nerv/conn_${element}_type)
+    conn_phase2=$(cat /opt/src/nerv/conn_${element}_phase2)
+    conn_leftsubnet=$(cat /opt/src/nerv/conn_${element}_leftsubnet)
+    conn_rightsubnet=$(cat /opt/src/nerv/conn_${element}_rightsubnet)
+    conn_psk=$(cat /opt/src/nerv/conn_${element}_psk)
+    echo "${1} name: $conn_name"
+    echo "${1} right_id: $conn_right"
+    echo "${1} also: $conn_also"
+    echo "${1} auto: $conn_auto"
+    echo "${1} leftprotoport: $conn_leftprotoport"
+    echo "${1} rightprotoport: $conn_rightprotoport"
+    echo "${1} type: $conn_type"
+    echo "${1} phase2: $conn_phase2"
+    echo "${1} leftsubnet: $conn_leftsubnet"
+    echo "${1} rightsubnet: $conn_rightsubnet"
+    echo "${1} psk: $conn_psk"
+    #generate vpn conn config file
+    conn_file=/opt/src/ipsec_nerv_${1}.conf
+cat > $conn_file <<EOF
+conn shared
+  left=%defaultroute
+  leftid=$PUBLIC_IP
+  encapsulation=yes
+  authby=secret
+  pfs=no
+  rekey=no
+  keyingtries=5
+  dpddelay=30
+  dpdtimeout=120
+  dpdaction=clear
+  ikev2=never
+  ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
+  phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
+EOF
+    echo "conn $conn_name" >> $conn_file
+    echo "  right=%any" >> $conn_file
+    if [ ! -z "$conn_right" ]; then
+      echo "  rightid=$conn_right" >> $conn_file
+    fi
+    if [ ! -z "$conn_auto" ]; then
+      echo "  auto=$conn_auto" >> $conn_file
+    fi
+    if [ ! -z "$conn_leftprotoport" ]; then
+      echo "  leftprotoport=$conn_leftprotoport" >> $conn_file
+    fi
+    if [ ! -z "$conn_rightprotoport" ]; then
+      echo "  rightprotoport=$conn_rightprotoport" >> $conn_file
+    fi
+    if [ ! -z "$conn_type" ]; then
+      echo "  type=$conn_type" >> $conn_file
+    fi
+    if [ ! -z "$conn_phase2" ]; then
+      echo "  phase2=$conn_phase2" >> $conn_file
+    fi
+    if [ ! -z "$conn_also" ]; then
+      echo "  also=$conn_also" >> $conn_file
+    else
+      echo "  also=shared" >> $conn_file
+    fi
+    if [ ! -z "$conn_leftsubnet" ]; then
+      echo "  leftsubnet=$conn_leftsubnet" >> $conn_file
+    fi
+    if [ ! -z "$conn_rightsubnet" ]; then
+      echo "  rightsubnet=$conn_rightsubnet" >> $conn_file
+    fi
+    #ipsec start connections
+    ipsec addconn ${1} --config $conn_file
+
     echo "add vpn connection:${1} success"
 }
 
 function del_conn(){
     echo "start delete vpn connection:${1}"
+    #delete vpn conn config file
+    conn_file=/opt/src/ipsec_nerv_${1}.conf
+    rm $conn_file -y
+    #ipsec delete connections
+    ipsec auto --delete ${1}
     echo "delete vpn connection:${1} success"
 }
 
