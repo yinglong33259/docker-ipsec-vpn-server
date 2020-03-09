@@ -29,9 +29,19 @@ ip link delete dummy0 >/dev/null 2>&1
 
 mkdir -p /opt/src
 
-echo "$VPN_DEFAULT_USER"
-ss=$(cat /opt/src/nerv/VPN_DEFAULT_USER)
-echo $ss
+#get all env paramaters
+IPSEC_VIRTUAL_PRIVATE=$(cat /opt/src/nerv/IPSEC_VIRTUAL_PRIVATE)
+VPN_PUBLIC_IP=$(cat /opt/src/nerv/VPN_PUBLIC_IP)
+XL2TPD_IP_NET=$(cat /opt/src/nerv/XL2TPD_IP_NET)
+XL2TPD_IP_RANGE=$(cat /opt/src/nerv/XL2TPD_IP_RANGE)
+XL2TPD_LOCAL_IP=$(cat /opt/src/nerv/XL2TPD_LOCAL_IP)
+XL2TPD_FORWARD_NIC=$(cat /opt/src/nerv/XL2TPD_FORWARD_NIC)
+REPORTER_INTERVAL=$(cat /opt/src/nerv/REPORTER_INTERVAL)
+REPORTER_ADDR=$(cat /opt/src/nerv/REPORTER_ADDR)
+VPN_IPSEC_CONNS=$(cat /opt/src/nerv/VPN_IPSEC_CONNS)
+VPN_DEFAULT_USER=$(cat /opt/src/nerv/VPN_DEFAULT_USER)
+VPN_DEFAULT_PASSWORD=$(cat /opt/src/nerv/VPN_DEFAULT_PASSWORD)
+VPN_DEFAULT_PSK=$(cat /opt/src/nerv/VPN_DEFAULT_PSK)
 
 # Remove whitespace and quotes around VPN variables, if any
 VPN_IPSEC_PSK=$(nospaces "$VPN_DEFAULT_PSK")
