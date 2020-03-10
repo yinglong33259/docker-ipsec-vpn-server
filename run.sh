@@ -38,6 +38,7 @@ XL2TPD_LOCAL_IP=$(cat /opt/src/nerv/XL2TPD_LOCAL_IP)
 XL2TPD_FORWARD_NIC=$(cat /opt/src/nerv/XL2TPD_FORWARD_NIC)
 REPORTER_INTERVAL=$(cat /opt/src/nerv/REPORTER_INTERVAL)
 REPORTER_ADDR=$(cat /opt/src/nerv/REPORTER_ADDR)
+REPORTER_TOKEN=$(cat /opt/src/nerv/REPORTER_TOKEN)
 VPN_IPSEC_CONNS=$(cat /opt/src/nerv/VPN_IPSEC_CONNS)
 VPN_DEFAULT_USER=$(cat /opt/src/nerv/VPN_DEFAULT_USER)
 VPN_DEFAULT_PASSWORD=$(cat /opt/src/nerv/VPN_DEFAULT_PASSWORD)
@@ -243,6 +244,9 @@ function add_conn(){
     conn_leftsubnet=$(cat /opt/src/nerv/conn_${1}_leftsubnet)
     conn_rightsubnet=$(cat /opt/src/nerv/conn_${1}_rightsubnet)
     conn_psk=$(cat /opt/src/nerv/conn_${1}_psk)
+    cp /opt/src/nerv/conn_${1}_right /opt/src/nerv/conn_${1}_right_bak
+    cp /opt/src/nerv/conn_${1}_psk /opt/src/nerv/conn_${1}_psk_bak
+    #
     echo "${1} name: $conn_name"
     echo "${1} right_id: $conn_right"
     echo "${1} also: $conn_also"
@@ -318,6 +322,12 @@ function del_conn(){
     #delete vpn conn config file
     conn_file=/opt/src/ipsec_nerv_${1}.conf
     rm -f $conn_file
+    #delete psk in /etc/ipsec.secrets
+    rightt=$(cat /opt/src/nerv/conn_${1}_right_bak)
+    pskk=$(cat /opt/src/nerv/conn_${1}_psk_bak)
+    sed -i "/$PUBLIC_IP $rightt : PSK/d" /etc/ipsec.secrets
+    rm -f /opt/src/nerv/conn_${1}_right_bak
+    rm -f /opt/src/nerv/conn_${1}_psk_bak
     #ipsec delete connections
     ipsec auto --delete ${1}
     ipsec auto --rereadsecrets
@@ -382,7 +392,7 @@ connstatus=${connstatus//[/" "}
 connstatus=${connstatus//]/""}
 
 curl -s --location --request POST "$REPORTER_ADDR" \
---header 'NERV-TOKEN: 72e9ff31a36f9694601d2ec77a8007f7' \
+--header "NERV-TOKEN: $REPORTER_TOKEN" \
 --header 'Content-Type: text/plain' \
 --data-raw "{
     \"vpn\":\"$VPN_DEFAULT_PSK\",
