@@ -28,6 +28,8 @@ fi
 ip link delete dummy0 >/dev/null 2>&1
 
 mkdir -p /opt/src
+mkdir /opt/src/bak
+chmod -R 777 /opt/src/bak
 
 #get all env paramaters
 IPSEC_VIRTUAL_PRIVATE=$(cat /opt/src/nerv/IPSEC_VIRTUAL_PRIVATE)
@@ -244,8 +246,8 @@ function add_conn(){
     conn_leftsubnet=$(cat /opt/src/nerv/conn_${1}_leftsubnet)
     conn_rightsubnet=$(cat /opt/src/nerv/conn_${1}_rightsubnet)
     conn_psk=$(cat /opt/src/nerv/conn_${1}_psk)
-    cp /opt/src/nerv/conn_${1}_right /opt/src/nerv/conn_${1}_right_bak
-    cp /opt/src/nerv/conn_${1}_psk /opt/src/nerv/conn_${1}_psk_bak
+    cp /opt/src/nerv/conn_${1}_right /opt/src/bak/conn_${1}_right_bak
+    cp /opt/src/nerv/conn_${1}_psk /opt/src/bak/conn_${1}_psk_bak
     #
     echo "${1} name: $conn_name"
     echo "${1} right_id: $conn_right"
@@ -323,11 +325,11 @@ function del_conn(){
     conn_file=/opt/src/ipsec_nerv_${1}.conf
     rm -f $conn_file
     #delete psk in /etc/ipsec.secrets
-    rightt=$(cat /opt/src/nerv/conn_${1}_right_bak)
-    pskk=$(cat /opt/src/nerv/conn_${1}_psk_bak)
+    rightt=$(cat /opt/src/bak/conn_${1}_right_bak)
+    pskk=$(cat /opt/src/bak/conn_${1}_psk_bak)
     sed -i "/$PUBLIC_IP $rightt : PSK/d" /etc/ipsec.secrets
-    rm -f /opt/src/nerv/conn_${1}_right_bak
-    rm -f /opt/src/nerv/conn_${1}_psk_bak
+    rm -f /opt/src/bak/conn_${1}_right_bak
+    rm -f /opt/src/bak/conn_${1}_psk_bak
     #ipsec delete connections
     ipsec auto --delete ${1}
     ipsec auto --rereadsecrets
