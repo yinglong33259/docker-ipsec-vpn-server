@@ -357,7 +357,7 @@ function del_conn(){
     #del psk
     sed -i "/$PUBLIC_IP $rightt : PSK/d" /etc/ipsec.secrets
     #delete pppd login config
-    sed -i "/\"$conn_login_user_name\" * \"$conn_login_user_password\" */\$d" /etc/ppp/chap-secrets
+    sed -i "0,/\"$conn_login_user_name\" \* \"$conn_login_user_password\" \*/d" /etc/ppp/chap-secrets
     xl2tpd -s /etc/ppp/chap-secrets
     #
     rm -f /opt/src/bak/conn_${1}_right_bak
