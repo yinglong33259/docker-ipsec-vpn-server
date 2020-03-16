@@ -342,6 +342,14 @@ EOF
     ipsec addconn ${1} --config $conn_file
     ipsec auto --rereadsecrets
     echo "add vpn connection:${1} success"
+    #report to manager
+    curl -s --location --request POST "$REPORTER_ADDR/ReportConnCreateStatus" \
+    --header "NERV-TOKEN: $REPORTER_TOKEN" \
+    --header 'Content-Type: text/plain' \
+    --data-raw "{
+        \"vpn\":\"$VPN_DEFAULT_PSK\",
+        \"connInnerName\":\"${1}\"
+    }"
 }
 
 function del_conn(){
@@ -368,6 +376,14 @@ function del_conn(){
     ipsec auto --delete ${1}
     ipsec auto --rereadsecrets
     echo "delete vpn connection:${1} success"
+    #report to manager
+    curl -s --location --request POST "$REPORTER_ADDR/ReportConnDeleteStatus" \
+    --header "NERV-TOKEN: $REPORTER_TOKEN" \
+    --header 'Content-Type: text/plain' \
+    --data-raw "{
+        \"vpn\":\"$VPN_DEFAULT_PSK\",
+        \"connInnerName\":\"${1}\"
+    }"
 }
 
 function update_conns(){
