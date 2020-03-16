@@ -343,7 +343,7 @@ EOF
     ipsec auto --rereadsecrets
     echo "add vpn connection:${1} success"
     #report to manager
-    curl -s --location --request POST "$REPORTER_ADDR/ReportConnCreateStatus" \
+    curl -s --location --request POST "$REPORTER_ADDR/ConnCreate" \
     --header "NERV-TOKEN: $REPORTER_TOKEN" \
     --header 'Content-Type: text/plain' \
     --data-raw "{
@@ -377,7 +377,7 @@ function del_conn(){
     ipsec auto --rereadsecrets
     echo "delete vpn connection:${1} success"
     #report to manager
-    curl -s --location --request POST "$REPORTER_ADDR/ReportConnDeleteStatus" \
+    curl -s --location --request POST "$REPORTER_ADDR/ConnDelete" \
     --header "NERV-TOKEN: $REPORTER_TOKEN" \
     --header 'Content-Type: text/plain' \
     --data-raw "{
