@@ -276,6 +276,8 @@ function add_conn(){
     echo "${1} leftsubnet: $conn_leftsubnet"
     echo "${1} rightsubnet: $conn_rightsubnet"
     echo "${1} psk: $conn_psk"
+    echo "${1} login user name: $conn_login_user_name"
+    echo "${1} login user password: $conn_login_user_password"
     #appen psk to /etc/ipsec.secrets
     if [ ! -z "$conn_psk" ]; then
       echo "$PUBLIC_IP $conn_right : PSK \"$conn_psk\"" >> /etc/ipsec.secrets
