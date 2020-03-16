@@ -300,7 +300,7 @@ conn shared
   ike=aes256-sha2,aes128-sha2,aes256-sha1,aes128-sha1,aes256-sha2;modp1024,aes128-sha1;modp1024
   phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
 EOF
-    echo "conn $conn_name" >> $conn_file
+    echo "conn ${1}" >> $conn_file
     echo "  right=%any" >> $conn_file
     if [ ! -z "$conn_right" ]; then
       echo "  rightid=$conn_right" >> $conn_file
