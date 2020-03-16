@@ -45,6 +45,23 @@ VPN_IPSEC_CONNS=$(cat /opt/src/nerv/VPN_IPSEC_CONNS)
 VPN_DEFAULT_USER=$(cat /opt/src/nerv/VPN_DEFAULT_USER)
 VPN_DEFAULT_PASSWORD=$(cat /opt/src/nerv/VPN_DEFAULT_PASSWORD)
 VPN_DEFAULT_PSK=$(cat /opt/src/nerv/VPN_DEFAULT_PSK)
+cat <<EOF
+================================================
+IPsec VPN server is ready to start, parameter details:
+IPSEC_VIRTUAL_PRIVATE : $IPSEC_VIRTUAL_PRIVATE
+VPN_PUBLIC_IP : $VPN_PUBLIC_IP
+XL2TPD_IP_NET : $XL2TPD_IP_NET
+XL2TPD_IP_RANGE : $XL2TPD_IP_RANGE
+XL2TPD_LOCAL_IP : $XL2TPD_LOCAL_IP
+XL2TPD_FORWARD_NIC : $XL2TPD_FORWARD_NIC
+REPORTER_INTERVAL : $REPORTER_INTERVAL
+REPORTER_ADDR : $REPORTER_ADDR
+REPORTER_TOKEN : $REPORTER_TOKEN
+VPN_IPSEC_CONNS : $VPN_IPSEC_CONNS
+VPN_DEFAULT_USER : $VPN_DEFAULT_USER
+VPN_DEFAULT_PASSWORD : $VPN_DEFAULT_PASSWORD
+VPN_DEFAULT_PSK : $VPN_DEFAULT_PSK
+EOF
 
 # Remove whitespace and quotes around VPN variables, if any
 VPN_IPSEC_PSK=$(nospaces "$VPN_DEFAULT_PSK")
@@ -151,11 +168,6 @@ cat > /etc/ppp/chap-secrets <<EOF
 "$VPN_DEFAULT_USER" * "$VPN_DEFAULT_PASSWORD" *
 EOF
 
-VPN_PASSWORD_ENC=$(openssl passwd -1 "$VPN_DEFAULT_PASSWORD")
-cat > /etc/ipsec.d/passwd <<EOF
-$VPN_DEFAULT_USER:$VPN_DEFAULT_PASSWORD_ENC:xauth-psk
-EOF
-
 # Update sysctl settings
 SYST='/sbin/sysctl -e -q -w'
 if [ "$(getconf LONG_BIT)" = "64" ]; then
@@ -221,14 +233,14 @@ rm -f /run/pluto/pluto.pid /var/run/pluto/pluto.pid /var/run/xl2tpd.pid
 /usr/local/sbin/ipsec start
 /usr/sbin/xl2tpd -c /etc/xl2tpd/xl2tpd.conf
 
-#log
+#log process
 service rsyslog restart
 service ipsec restart
 sed -i '/pluto\.pid/a service rsyslog restart' /opt/src/run.sh
 
 cat <<EOF
 ================================================
-Listen vpn connections change enent...
+Vpn server start listen vpn connections change event...
 Report vpn connections info to nerv vpn server:$REPORTER_ADDR
 Time interval:$REPORTER_INTERVAL
 EOF
@@ -246,8 +258,12 @@ function add_conn(){
     conn_leftsubnet=$(cat /opt/src/nerv/conn_${1}_leftsubnet)
     conn_rightsubnet=$(cat /opt/src/nerv/conn_${1}_rightsubnet)
     conn_psk=$(cat /opt/src/nerv/conn_${1}_psk)
+    conn_login_user_name=$(cat /opt/src/nerv/conn_${1}_login_user_name)
+    conn_login_user_password=$(cat /opt/src/nerv/conn_${1}_login_user_password)
     cp /opt/src/nerv/conn_${1}_right /opt/src/bak/conn_${1}_right_bak
     cp /opt/src/nerv/conn_${1}_psk /opt/src/bak/conn_${1}_psk_bak
+    cp /opt/src/nerv/conn_${1}_login_user_name /opt/src/bak/conn_${1}_login_user_name_bak
+    cp /opt/src/nerv/conn_${1}_login_user_password /opt/src/bak/conn_${1}_login_user_password_bak
     #
     echo "${1} name: $conn_name"
     echo "${1} right_id: $conn_right"
@@ -313,6 +329,13 @@ EOF
     if [ ! -z "$conn_rightsubnet" ]; then
       echo "  rightsubnet=$conn_rightsubnet" >> $conn_file
     fi
+    #add ip forward rule
+    if [ ! -z "$conn_leftsubnet" ] && [ ! -z "$conn_rightsubnet" ]; then
+      iptables -t nat -A POSTROUTING -s $conn_leftsubnet -d $conn_rightsubnet -j MASQUERADE
+    fi
+    #add pppd login config
+    echo "\"$conn_login_user_name\" * \"$conn_login_user_password\" *" >> /etc/ppp/chap-secrets
+    xl2tpd -s /etc/ppp/chap-secrets
     #ipsec start connections
     ipsec addconn ${1} --config $conn_file
     ipsec auto --rereadsecrets
@@ -327,9 +350,18 @@ function del_conn(){
     #delete psk in /etc/ipsec.secrets
     rightt=$(cat /opt/src/bak/conn_${1}_right_bak)
     pskk=$(cat /opt/src/bak/conn_${1}_psk_bak)
+    userr=$(cat /opt/src/bak/conn_${1}_login_user_name_bak)
+    pwdd=$(cat /opt/src/bak/conn_${1}_login_user_password_bak)
+    #del psk
     sed -i "/$PUBLIC_IP $rightt : PSK/d" /etc/ipsec.secrets
+    #delete pppd login config
+    sed -i "/\"$conn_login_user_name\" * \"$conn_login_user_password\" */\$d" /etc/ppp/chap-secrets
+    xl2tpd -s /etc/ppp/chap-secrets
+    #
     rm -f /opt/src/bak/conn_${1}_right_bak
     rm -f /opt/src/bak/conn_${1}_psk_bak
+    rm -f /opt/src/bak/conn_${1}_login_user_name_bak
+    rm -f /opt/src/bak/conn_${1}_login_user_password_bak
     #ipsec delete connections
     ipsec auto --delete ${1}
     ipsec auto --rereadsecrets
