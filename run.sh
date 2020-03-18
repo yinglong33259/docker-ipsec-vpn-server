@@ -301,7 +301,7 @@ EOF
       echo "  rightsubnet=$conn_rightsubnet" >> $conn_file
     fi
     #add ip forward rule
-    if [ ! -z "$conn_leftsubnet" ] && [ ! -z "$conn_rightsubnet" ]; then
+    if [ ! -z "$conn_leftsubnet" ] && [ ! -z "$conn_rightsubnet" ] && [ "$conn_rightsubnet" != "vhost:%priv" ]; then
       iptables -t nat -A POSTROUTING -s $conn_leftsubnet -d $conn_rightsubnet -j MASQUERADE
     fi
     #add pppd login config
