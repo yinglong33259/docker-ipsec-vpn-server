@@ -42,6 +42,7 @@ REPORTER_INTERVAL=$(cat /opt/src/nerv/REPORTER_INTERVAL)
 REPORTER_ADDR=$(cat /opt/src/nerv/REPORTER_ADDR)
 REPORTER_TOKEN=$(cat /opt/src/nerv/REPORTER_TOKEN)
 VPN_IPSEC_CONNS=$(cat /opt/src/nerv/VPN_IPSEC_CONNS)
+VPN_KUBE_UUID=$(cat /opt/src/nerv/VPN_KUBE_UUID)
 cat <<EOF
 ================================================
 IPsec VPN server is ready to start, parameter details:
@@ -55,6 +56,7 @@ REPORTER_INTERVAL : $REPORTER_INTERVAL
 REPORTER_ADDR : $REPORTER_ADDR
 REPORTER_TOKEN : $REPORTER_TOKEN
 VPN_IPSEC_CONNS : $VPN_IPSEC_CONNS
+VPN_KUBE_UUID : $VPN_KUBE_UUID
 EOF
 
 echo 'Trying to auto discover IP of this server...'
@@ -314,7 +316,7 @@ EOF
     --header "NERV-TOKEN: $REPORTER_TOKEN" \
     --header 'Content-Type: text/plain' \
     --data-raw "{
-        \"vpn\":\"$VPN_DEFAULT_PSK\",
+        \"vpn\":\"$VPN_KUBE_UUID\",
         \"connInnerName\":\"${1}\"
     }"
 }
@@ -348,7 +350,7 @@ function del_conn(){
     --header "NERV-TOKEN: $REPORTER_TOKEN" \
     --header 'Content-Type: text/plain' \
     --data-raw "{
-        \"vpn\":\"$VPN_DEFAULT_PSK\",
+        \"vpn\":\"$VPN_KUBE_UUID\",
         \"connInnerName\":\"${1}\"
     }"
 }
@@ -414,7 +416,7 @@ curl -s --location --request POST "$REPORTER_ADDR" \
 --header "NERV-TOKEN: $REPORTER_TOKEN" \
 --header 'Content-Type: text/plain' \
 --data-raw "{
-    \"vpn\":\"$VPN_DEFAULT_PSK\",
+    \"vpn\":\"$VPN_KUBE_UUID\",
     \"status\":\"$connstatus\"
 }"
 fi
