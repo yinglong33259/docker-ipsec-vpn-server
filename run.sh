@@ -128,6 +128,7 @@ echo "$PUBLIC_IP %any : PSK \"$VPN_DEFAULT_PSK\"" >> /etc/ipsec.secrets
 # Create xl2tpd config
 cat > /etc/xl2tpd/xl2tpd.conf <<EOF
 [global]
+listen-addr = $PUBLIC_IP
 port = 1701
 ipsec saref = yes
 auth file = /etc/ppp/chap-secrets
