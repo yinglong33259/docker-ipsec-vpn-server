@@ -42,9 +42,6 @@ REPORTER_INTERVAL=$(cat /opt/src/nerv/REPORTER_INTERVAL)
 REPORTER_ADDR=$(cat /opt/src/nerv/REPORTER_ADDR)
 REPORTER_TOKEN=$(cat /opt/src/nerv/REPORTER_TOKEN)
 VPN_IPSEC_CONNS=$(cat /opt/src/nerv/VPN_IPSEC_CONNS)
-VPN_DEFAULT_USER=$(cat /opt/src/nerv/VPN_DEFAULT_USER)
-VPN_DEFAULT_PASSWORD=$(cat /opt/src/nerv/VPN_DEFAULT_PASSWORD)
-VPN_DEFAULT_PSK=$(cat /opt/src/nerv/VPN_DEFAULT_PSK)
 cat <<EOF
 ================================================
 IPsec VPN server is ready to start, parameter details:
@@ -58,37 +55,9 @@ REPORTER_INTERVAL : $REPORTER_INTERVAL
 REPORTER_ADDR : $REPORTER_ADDR
 REPORTER_TOKEN : $REPORTER_TOKEN
 VPN_IPSEC_CONNS : $VPN_IPSEC_CONNS
-VPN_DEFAULT_USER : $VPN_DEFAULT_USER
-VPN_DEFAULT_PASSWORD : $VPN_DEFAULT_PASSWORD
-VPN_DEFAULT_PSK : $VPN_DEFAULT_PSK
 EOF
 
-# Remove whitespace and quotes around VPN variables, if any
-VPN_IPSEC_PSK=$(nospaces "$VPN_DEFAULT_PSK")
-VPN_IPSEC_PSK=$(noquotes "$VPN_DEFAULT_PSK")
-VPN_USER=$(nospaces "$VPN_DEFAULT_USER")
-VPN_USER=$(noquotes "$VPN_DEFAULT_USER")
-VPN_PASSWORD=$(nospaces "$VPN_DEFAULT_PASSWORD")
-VPN_PASSWORD=$(noquotes "$VPN_DEFAULT_PASSWORD")
-
-
-if printf '%s' "$VPN_DEFAULT_PSK $VPN_DEFAULT_USER $VPN_DEFAULT_PASSWORD" | LC_ALL=C grep -q '[^ -~]\+'; then
-  exiterr "VPN credentials must not contain non-ASCII characters."
-fi
-
-case "$VPN_DEFAULT_PSK $VPN_DEFAULT_USER $VPN_DEFAULT_PASSWORD" in
-  *[\\\"\']*)
-    exiterr "VPN credentials must not contain these special characters: \\ \" '"
-    ;;
-esac
-
-if printf '%s' "$VPN_DEFAULT_USER" | tr ' ' '\n' | sort | uniq -c | grep -qv '^ *1 '; then
-  exiterr "VPN usernames must not contain duplicates."
-fi
-
-echo
 echo 'Trying to auto discover IP of this server...'
-
 # manually define the public IP as variable 'VPN_PUBLIC_IP'.
 PUBLIC_IP=${VPN_PUBLIC_IP:-''}
 
@@ -123,7 +92,7 @@ IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
 IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
 
 # Specify default IPsec PSK
-echo "$PUBLIC_IP %any : PSK \"$VPN_DEFAULT_PSK\"" >> /etc/ipsec.secrets
+# echo "$PUBLIC_IP %any : PSK \"$VPN_DEFAULT_PSK\"" >> /etc/ipsec.secrets
 
 # Create xl2tpd config
 cat > /etc/xl2tpd/xl2tpd.conf <<EOF
@@ -165,9 +134,9 @@ require-mschap-v2
 EOF
 
 # Create VPN credentials
-cat > /etc/ppp/chap-secrets <<EOF
-"$VPN_DEFAULT_USER" * "$VPN_DEFAULT_PASSWORD" *
-EOF
+# cat > /etc/ppp/chap-secrets <<EOF
+# "$VPN_DEFAULT_USER" * "$VPN_DEFAULT_PASSWORD" *
+# EOF
 
 # Update sysctl settings
 SYST='/sbin/sysctl -e -q -w'
@@ -217,22 +186,19 @@ iptables -t nat -I POSTROUTING -s "$L2TP_NET" -o "$L2TP_FORWARD_NIC" -j MASQUERA
 # Update file attributes
 chmod 600 /etc/ipsec.secrets /etc/ppp/chap-secrets /etc/ipsec.d/passwd
 
-cat <<EOF
-================================================
-IPsec VPN server is now ready for use!
-Connect to your new VPN with these details:
-Server IP: $PUBLIC_IP
-IPsec PSK Any: $VPN_DEFAULT_PSK
-Username: $VPN_DEFAULT_USER
-Password: $VPN_DEFAULT_PASSWORD
-EOF
-
 # Start services
 mkdir -p /run/pluto /var/run/pluto /var/run/xl2tpd
 rm -f /run/pluto/pluto.pid /var/run/pluto/pluto.pid /var/run/xl2tpd.pid
 
 /usr/local/sbin/ipsec start
 /usr/sbin/xl2tpd -c /etc/xl2tpd/xl2tpd.conf
+
+cat <<EOF
+================================================
+IPsec VPN server is now ready for use!
+Connect to your new VPN with these details:
+Server IP: $PUBLIC_IP
+EOF
 
 #log process
 service rsyslog restart
