@@ -91,17 +91,6 @@ config setup
   logfile=/var/log/pluto.log
 EOF
 
-#找到当前所有连接
-IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
-IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
-
-function init_conns(){
-    for ele in ${IPSEC_CONN_ARRAY[*]}
-    do
-        add_conn $ele
-    done
-}
-
 # Specify default IPsec PSK
 # echo "$PUBLIC_IP %any : PSK \"$VPN_DEFAULT_PSK\"" >> /etc/ipsec.secrets
 
@@ -315,6 +304,11 @@ EOF
     if [ ! -z "$conn_leftsubnet" ]; then
       echo "  leftsubnet=$conn_leftsubnet" >> $conn_file
     fi
+    if [ -z "$conn_leftsourceip" ]; then
+      routeInfo=`ip route | grep $conn_leftsubnet`
+      routeInfoArray=(${routeInfo// / })
+      conn_leftsourceip=${IPSEC_CONN_ARRAY[-1]}
+    fi
     if [ ! -z "$conn_leftsourceip" ]; then
       echo "  leftsourceip=$conn_leftsourceip" >> $conn_file
     fi
@@ -421,6 +415,16 @@ function update_conns(){
         IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
     fi
 }
+
+#找到当前所有连接
+IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
+IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
+for ele in ${IPSEC_CONN_ARRAY[*]}
+do
+    add_conn $ele
+done
+
+
 
 while [ true ]; do
 #update ipsec conn
