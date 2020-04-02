@@ -86,12 +86,21 @@ config setup
   virtual-private=%v4:!$L2TP_NET
   protostack=netkey
   interfaces=%defaultroute
-  uniqueids=no
+  uniqueids=yes
+  strictcrlpolicy=no
+  logfile=/var/log/pluto.log
 EOF
 
 #找到当前所有连接
 IPSEC_CONNS_STR=${VPN_IPSEC_CONNS}
 IPSEC_CONN_ARRAY=(${IPSEC_CONNS_STR//,/ })
+
+function init_conns(){
+    for ele in ${IPSEC_CONN_ARRAY[*]}
+    do
+        add_conn $ele
+    done
+}
 
 # Specify default IPsec PSK
 # echo "$PUBLIC_IP %any : PSK \"$VPN_DEFAULT_PSK\"" >> /etc/ipsec.secrets
@@ -165,6 +174,11 @@ $SYST net.ipv4.conf.default.rp_filter=0
 $SYST net.ipv4.conf.eth0.send_redirects=0
 $SYST net.ipv4.conf.eth0.rp_filter=0
 
+#clear iptables rules
+iptables -F
+iptables -X
+iptables -F -t nat
+iptables -X -t nat
 # Create IPTables rules
 # iptables -I INPUT 1 -p udp --dport 1701 -m policy --dir in --pol none -j DROP
 # iptables -I INPUT 2 -m conntrack --ctstate INVALID -j DROP
