@@ -277,12 +277,12 @@ EOF
     if [ ! -z "$conn_auto" ]; then
       echo "  auto=$conn_auto" >> $conn_file
     fi
-    if [ ! -z "$conn_leftprotoport" ]; then
-      echo "  leftprotoport=$conn_leftprotoport" >> $conn_file
-    fi
-    if [ ! -z "$conn_rightprotoport" ]; then
-      echo "  rightprotoport=$conn_rightprotoport" >> $conn_file
-    fi
+    # if [ ! -z "$conn_leftprotoport" ]; then
+    #   echo "  leftprotoport=$conn_leftprotoport" >> $conn_file
+    # fi
+    # if [ ! -z "$conn_rightprotoport" ]; then
+    #   echo "  rightprotoport=$conn_rightprotoport" >> $conn_file
+    # fi
     if [ ! -z "$conn_type" ]; then
       echo "  type=$conn_type" >> $conn_file
     fi
