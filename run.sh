@@ -301,9 +301,9 @@ EOF
       echo "  rightsubnet=$conn_rightsubnet" >> $conn_file
     fi
     #add ip forward rule
-    if [ ! -z "$conn_leftsubnet" ] && [ ! -z "$conn_rightsubnet" ] && [ "$conn_rightsubnet" != "vhost:%priv" ]; then
-      iptables -t nat -A POSTROUTING -s $conn_leftsubnet -d $conn_rightsubnet -j MASQUERADE
-    fi
+    # if [ ! -z "$conn_leftsubnet" ] && [ ! -z "$conn_rightsubnet" ] && [ "$conn_rightsubnet" != "vhost:%priv" ]; then
+    #   iptables -t nat -A POSTROUTING -s $conn_leftsubnet -d $conn_rightsubnet -j MASQUERADE
+    # fi
      #add pppd login config
     if [ ! -z "$conn_login_user_name" ] && [ ! -z "$conn_login_user_password" ]; then
       echo "\"$conn_login_user_name\" * \"$conn_login_user_password\" *" >> /etc/ppp/chap-secrets
