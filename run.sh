@@ -166,13 +166,13 @@ $SYST net.ipv4.conf.eth0.send_redirects=0
 $SYST net.ipv4.conf.eth0.rp_filter=0
 
 # Create IPTables rules
-iptables -I INPUT 1 -p udp --dport 1701 -m policy --dir in --pol none -j DROP
-iptables -I INPUT 2 -m conntrack --ctstate INVALID -j DROP
-iptables -I INPUT 3 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-iptables -I INPUT 4 -p udp -m multiport --dports 500,4500 -j ACCEPT
-iptables -I INPUT 5 -p udp --dport 1701 -m policy --dir in --pol ipsec -j ACCEPT
-iptables -I INPUT 6 -p udp --dport 1701 -j DROP
-iptables -I FORWARD 1 -m conntrack --ctstate INVALID -j DROP
+# iptables -I INPUT 1 -p udp --dport 1701 -m policy --dir in --pol none -j DROP
+# iptables -I INPUT 2 -m conntrack --ctstate INVALID -j DROP
+# iptables -I INPUT 3 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+# iptables -I INPUT 4 -p udp -m multiport --dports 500,4500 -j ACCEPT
+# iptables -I INPUT 5 -p udp --dport 1701 -m policy --dir in --pol ipsec -j ACCEPT
+# iptables -I INPUT 6 -p udp --dport 1701 -j DROP
+# iptables -I FORWARD 1 -m conntrack --ctstate INVALID -j DROP
 iptables -I FORWARD 2 -i "$L2TP_FORWARD_NIC" -o ppp+ -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -I FORWARD 3 -i ppp+ -o "$L2TP_FORWARD_NIC" -j ACCEPT
 iptables -I FORWARD 4 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j ACCEPT
@@ -181,7 +181,7 @@ iptables -I FORWARD 4 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j ACCEPT
 # Uncomment if you wish to disallow traffic between VPN clients themselves
 iptables -I FORWARD 2 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j DROP
 # iptables -I FORWARD 3 -s "$XAUTH_NET" -d "$XAUTH_NET" -j DROP
-iptables -A FORWARD -j DROP
+#iptables -A FORWARD -j DROP
 #iptables -t nat -I POSTROUTING -s "$XAUTH_NET" -o "$L2TP_FORWARD_NIC" -m policy --dir out --pol none -j MASQUERADE
 iptables -t nat -I POSTROUTING -s "$L2TP_NET" -o "$L2TP_FORWARD_NIC" -j MASQUERADE
 
