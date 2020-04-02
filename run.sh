@@ -238,22 +238,6 @@ function add_conn(){
     cp /opt/src/nerv/conn_${1}_psk /opt/src/bak/conn_${1}_psk_bak
     cp /opt/src/nerv/conn_${1}_login_user_name /opt/src/bak/conn_${1}_login_user_name_bak
     cp /opt/src/nerv/conn_${1}_login_user_password /opt/src/bak/conn_${1}_login_user_password_bak
-    #
-    echo "${1} name: $conn_name"
-    echo "${1} right_id: $conn_right"
-    echo "${1} also: $conn_also"
-    echo "${1} auto: $conn_auto"
-    echo "${1} leftprotoport: $conn_leftprotoport"
-    echo "${1} rightprotoport: $conn_rightprotoport"
-    echo "${1} type: $conn_type"
-    echo "${1} phase2: $conn_phase2"
-    echo "${1} leftsubnet: $conn_leftsubnet"
-    echo "${1} leftsourceip: $conn_leftsourceip"
-    echo "${1} rightsubnet: $conn_rightsubnet"
-    echo "${1} rightsourceip: $conn_rightsourceip"
-    echo "${1} psk: $conn_psk"
-    echo "${1} login user name: $conn_login_user_name"
-    echo "${1} login user password: $conn_login_user_password"
     #appen psk to /etc/ipsec.secrets
     if [ ! -z "$conn_psk" ]; then
       echo "$PUBLIC_IP $conn_right : PSK \"$conn_psk\"" >> /etc/ipsec.secrets
@@ -307,7 +291,7 @@ EOF
     if [ -z "$conn_leftsourceip" ]; then
       routeInfo=`ip route | grep $conn_leftsubnet`
       routeInfoArray=(${routeInfo// / })
-      conn_leftsourceip=${IPSEC_CONN_ARRAY[-1]}
+      conn_leftsourceip=${routeInfoArray[-1]}
     fi
     if [ ! -z "$conn_leftsourceip" ]; then
       echo "  leftsourceip=$conn_leftsourceip" >> $conn_file
@@ -318,6 +302,24 @@ EOF
     if [ ! -z "$conn_rightsourceip" ]; then
       echo "  rightsourceip=$conn_rightsourceip" >> $conn_file
     fi
+
+    #print connection info
+    echo "${1} name: $conn_name"
+    echo "${1} right_id: $conn_right"
+    echo "${1} also: $conn_also"
+    echo "${1} auto: $conn_auto"
+    echo "${1} leftprotoport: $conn_leftprotoport"
+    echo "${1} rightprotoport: $conn_rightprotoport"
+    echo "${1} type: $conn_type"
+    echo "${1} phase2: $conn_phase2"
+    echo "${1} leftsubnet: $conn_leftsubnet"
+    echo "${1} leftsourceip: $conn_leftsourceip"
+    echo "${1} rightsubnet: $conn_rightsubnet"
+    echo "${1} rightsourceip: $conn_rightsourceip"
+    echo "${1} psk: $conn_psk"
+    echo "${1} login user name: $conn_login_user_name"
+    echo "${1} login user password: $conn_login_user_password"
+
     #add ip forward rule
     # if [ ! -z "$conn_leftsubnet" ] && [ ! -z "$conn_rightsubnet" ] && [ "$conn_rightsubnet" != "vhost:%priv" ]; then
     #   iptables -t nat -A POSTROUTING -s $conn_leftsubnet -d $conn_rightsubnet -j MASQUERADE
