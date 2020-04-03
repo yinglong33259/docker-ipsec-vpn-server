@@ -264,7 +264,11 @@ conn shared
   phase2alg=aes_gcm-null,aes128-sha1,aes256-sha1,aes256-sha2_512,aes128-sha2,aes256-sha2
 EOF
     echo "conn ${1}" >> $conn_file
-    echo "  right=%any" >> $conn_file
+    if [ "$conn_nervconntype" == "IPSEC/L2TP" ]; then
+      echo "  right=%any" >> $conn_file
+    else
+      echo "  right=$conn_right" >> $conn_file
+    fi
     if [ ! -z "$conn_right" ]; then
       echo "  rightid=$conn_right" >> $conn_file
     fi
