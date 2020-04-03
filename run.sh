@@ -92,7 +92,7 @@ config setup
 EOF
 
 # Specify default IPsec PSK
-# echo "$PUBLIC_IP %any : PSK \"$VPN_DEFAULT_PSK\"" >> /etc/ipsec.secrets
+echo "#ipsec psk config" >> /etc/ipsec.secrets
 
 # Create xl2tpd config
 cat > /etc/xl2tpd/xl2tpd.conf <<EOF
@@ -225,6 +225,7 @@ EOF
 function add_conn(){
     echo "start add vpn connection:${1}"
     conn_name=$(cat /opt/src/nerv/conn_${1}_name)
+    conn_nervconntype=$(cat /opt/src/nerv/conn_${1}_nervconntype)
     conn_right=$(cat /opt/src/nerv/conn_${1}_right)
     conn_also=$(cat /opt/src/nerv/conn_${1}_also)
     conn_auto=$(cat /opt/src/nerv/conn_${1}_auto)
@@ -243,10 +244,7 @@ function add_conn(){
     cp /opt/src/nerv/conn_${1}_psk /opt/src/bak/conn_${1}_psk_bak
     cp /opt/src/nerv/conn_${1}_login_user_name /opt/src/bak/conn_${1}_login_user_name_bak
     cp /opt/src/nerv/conn_${1}_login_user_password /opt/src/bak/conn_${1}_login_user_password_bak
-    #appen psk to /etc/ipsec.secrets
-    if [ ! -z "$conn_psk" ]; then
-      echo "$PUBLIC_IP $conn_right : PSK \"$conn_psk\"" >> /etc/ipsec.secrets
-    fi
+
     #generate vpn conn config file
     conn_file=/opt/src/ipsec_nerv_${1}.conf
 cat > $conn_file <<EOF
@@ -310,6 +308,7 @@ EOF
 
     #print connection info
     echo "${1} name: $conn_name"
+    echo "${1} nervconntype: $conn_nervconntype"
     echo "${1} right_id: $conn_right"
     echo "${1} also: $conn_also"
     echo "${1} auto: $conn_auto"
@@ -324,6 +323,17 @@ EOF
     echo "${1} psk: $conn_psk"
     echo "${1} login user name: $conn_login_user_name"
     echo "${1} login user password: $conn_login_user_password"
+
+    #appen psk to /etc/ipsec.secrets
+    if [ "$conn_nervconntype" == "IPSEC/L2TP" ]; then
+      if [ ! -z "$conn_psk" ]; then
+        echo "$PUBLIC_IP $conn_right : PSK \"$conn_psk\"" >> /etc/ipsec.secrets
+      fi
+    else
+      if [ ! -z "$conn_psk" ]; then
+        sed -i "1a $PUBLIC_IP $conn_right : PSK \"$conn_psk\"" /etc/ipsec.secrets
+      fi
+    fi
 
     #add ip forward rule
     # if [ ! -z "$conn_leftsubnet" ] && [ ! -z "$conn_rightsubnet" ] && [ "$conn_rightsubnet" != "vhost:%priv" ]; then
