@@ -340,7 +340,7 @@ EOF
     #   iptables -t nat -A POSTROUTING -s $conn_leftsubnet -d $conn_rightsubnet -j MASQUERADE
     # fi
      #add pppd login config
-    if [ ! -z "$conn_login_user_name" ] && [ ! -z "$conn_login_user_password" ]; then
+    if [ ! -z "$conn_login_user_name" ] && [ ! -z "$conn_login_user_password" ] &&  [ "$conn_nervconntype" == "IPSEC/L2TP" ]; then
       echo "\"$conn_login_user_name\" * \"$conn_login_user_password\" *" >> /etc/ppp/chap-secrets
       xl2tpd -s /etc/ppp/chap-secrets
     fi
