@@ -160,14 +160,14 @@ $SYST net.ipv4.conf.default.accept_source_route=0
 $SYST net.ipv4.conf.default.accept_redirects=0
 $SYST net.ipv4.conf.default.send_redirects=0
 $SYST net.ipv4.conf.default.rp_filter=0
-$SYST net.ipv4.conf.eth0.send_redirects=0
-$SYST net.ipv4.conf.eth0.rp_filter=0
+# $SYST net.ipv4.conf.eth0.send_redirects=0
+# $SYST net.ipv4.conf.eth0.rp_filter=0
 
 #clear iptables rules
-iptables -F
-iptables -X
-iptables -F -t nat
-iptables -X -t nat
+# iptables -F
+# iptables -X
+# iptables -F -t nat
+# iptables -X -t nat
 # Create IPTables rules
 # iptables -I INPUT 1 -p udp --dport 1701 -m policy --dir in --pol none -j DROP
 # iptables -I INPUT 2 -m conntrack --ctstate INVALID -j DROP
@@ -176,16 +176,21 @@ iptables -X -t nat
 # iptables -I INPUT 5 -p udp --dport 1701 -m policy --dir in --pol ipsec -j ACCEPT
 # iptables -I INPUT 6 -p udp --dport 1701 -j DROP
 # iptables -I FORWARD 1 -m conntrack --ctstate INVALID -j DROP
+iptables -D FORWARD 2 -i "$L2TP_FORWARD_NIC" -o ppp+ -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -I FORWARD 2 -i "$L2TP_FORWARD_NIC" -o ppp+ -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+iptables -D FORWARD 3 -i ppp+ -o "$L2TP_FORWARD_NIC" -j ACCEPT
 iptables -I FORWARD 3 -i ppp+ -o "$L2TP_FORWARD_NIC" -j ACCEPT
+iptables -D FORWARD 4 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j ACCEPT
 iptables -I FORWARD 4 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j ACCEPT
 # iptables -I FORWARD 5 -i "$L2TP_FORWARD_NIC" -d "$XAUTH_NET" -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 # iptables -I FORWARD 6 -s "$XAUTH_NET" -o "$L2TP_FORWARD_NIC" -j ACCEPT
 # Uncomment if you wish to disallow traffic between VPN clients themselves
+iptables -D FORWARD 2 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j DROP
 iptables -I FORWARD 2 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j DROP
 # iptables -I FORWARD 3 -s "$XAUTH_NET" -d "$XAUTH_NET" -j DROP
 #iptables -A FORWARD -j DROP
 #iptables -t nat -I POSTROUTING -s "$XAUTH_NET" -o "$L2TP_FORWARD_NIC" -m policy --dir out --pol none -j MASQUERADE
+iptables -t nat -D POSTROUTING -s "$L2TP_NET" -o "$L2TP_FORWARD_NIC" -j MASQUERADE
 iptables -t nat -I POSTROUTING -s "$L2TP_NET" -o "$L2TP_FORWARD_NIC" -j MASQUERADE
 
 # Update file attributes
