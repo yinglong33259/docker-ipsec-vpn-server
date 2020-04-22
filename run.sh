@@ -348,7 +348,7 @@ EOF
       iptables -D FORWARD -s $conn_rightsubnet -d 0.0.0.0/0 -j ACCEPT
       iptables -I FORWARD -s $conn_rightsubnet -d 0.0.0.0/0 -j ACCEPT
       #转发规则
-      iptables -t nat -A POSTROUTING -s 172.16.29.0/24 -j MASQUERADE
+      iptables -t nat -A POSTROUTING -s $conn_rightsubnet -j MASQUERADE
     fi
      #add pppd login config
     if [ ! -z "$conn_login_user_name" ] && [ ! -z "$conn_login_user_password" ] &&  [ "$conn_nervconntype" == "IPSEC/L2TP" ]; then
