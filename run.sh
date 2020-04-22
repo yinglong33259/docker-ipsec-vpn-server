@@ -176,16 +176,16 @@ $SYST net.ipv4.conf.default.rp_filter=0
 # iptables -I INPUT 5 -p udp --dport 1701 -m policy --dir in --pol ipsec -j ACCEPT
 # iptables -I INPUT 6 -p udp --dport 1701 -j DROP
 # iptables -I FORWARD 1 -m conntrack --ctstate INVALID -j DROP
-iptables -D FORWARD 2 -i "$L2TP_FORWARD_NIC" -o ppp+ -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+iptables -D FORWARD -i "$L2TP_FORWARD_NIC" -o ppp+ -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -I FORWARD 2 -i "$L2TP_FORWARD_NIC" -o ppp+ -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-iptables -D FORWARD 3 -i ppp+ -o "$L2TP_FORWARD_NIC" -j ACCEPT
+iptables -D FORWARD -i ppp+ -o "$L2TP_FORWARD_NIC" -j ACCEPT
 iptables -I FORWARD 3 -i ppp+ -o "$L2TP_FORWARD_NIC" -j ACCEPT
-iptables -D FORWARD 4 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j ACCEPT
+iptables -D FORWARD -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j ACCEPT
 iptables -I FORWARD 4 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j ACCEPT
 # iptables -I FORWARD 5 -i "$L2TP_FORWARD_NIC" -d "$XAUTH_NET" -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 # iptables -I FORWARD 6 -s "$XAUTH_NET" -o "$L2TP_FORWARD_NIC" -j ACCEPT
 # Uncomment if you wish to disallow traffic between VPN clients themselves
-iptables -D FORWARD 2 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j DROP
+iptables -D FORWARD -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j DROP
 iptables -I FORWARD 2 -i ppp+ -o ppp+ -s "$L2TP_NET" -d "$L2TP_NET" -j DROP
 # iptables -I FORWARD 3 -s "$XAUTH_NET" -d "$XAUTH_NET" -j DROP
 #iptables -A FORWARD -j DROP
@@ -340,9 +340,16 @@ EOF
     fi
 
     #add ip forward rule
-    # if [ ! -z "$conn_leftsubnet" ] && [ ! -z "$conn_rightsubnet" ] && [ "$conn_rightsubnet" != "vhost:%priv" ]; then
-    #   iptables -t nat -A POSTROUTING -s $conn_leftsubnet -d $conn_rightsubnet -j MASQUERADE
-    # fi
+    if [ ! -z "$conn_leftsubnet" ] && [ ! -z "$conn_rightsubnet" ] && [ "$conn_rightsubnet" != "vhost:%priv" ]; then
+      #下面两条规则是避免流量被k8s和docker的iptables规则干掉，先删除是避免创建重复的规则
+      #对于left删除可能导致已有流量瞬时断开
+      iptables -D FORWARD -s $conn_leftsubnet -d 0.0.0.0/0 -j ACCEPT
+      iptables -I FORWARD -s $conn_leftsubnet -d 0.0.0.0/0 -j ACCEPT
+      iptables -D FORWARD -s $conn_rightsubnet -d 0.0.0.0/0 -j ACCEPT
+      iptables -I FORWARD -s $conn_rightsubnet -d 0.0.0.0/0 -j ACCEPT
+      #转发规则
+      iptables -t nat -A POSTROUTING -s 172.16.29.0/24 -j MASQUERADE
+    fi
      #add pppd login config
     if [ ! -z "$conn_login_user_name" ] && [ ! -z "$conn_login_user_password" ] &&  [ "$conn_nervconntype" == "IPSEC/L2TP" ]; then
       echo "\"$conn_login_user_name\" * \"$conn_login_user_password\" *" >> /etc/ppp/chap-secrets
